@@ -5,15 +5,28 @@ document.addEventListener('DOMContentLoaded', function() {
         questionDiv.textContent=newQuestion
     }
 
-    let questionString="how much deditated ram in the server for the server ya know i mean when i play minecraft on my server how much deditated ram do i need?";
+    let questionString="really big string like om gholy shit big string like zoo wee mama thats got to be at least 2 lines"
+    //let questionString="Is martyrdom for cowards?";
     updateQuestion(questionString);
-});
 
-//changes the 3 bar menu to the X and adds show to the menu css id 
-document.getElementById('menuIcon').addEventListener('click', function(){
-    this.classList.toggle('change');
-    document.getElementById('menu').classList.toggle('show');
-    console.log("changing menu") //delete after debugged
+    //changes the 3 bar menu to the X and adds show to the menu css id 
+    document.getElementById('menuIcon').addEventListener('click', function(){
+        this.classList.toggle('change');
+        const menuElement=document.getElementById('menu');
+        const menuQuestionLine=document.querySelector('.menuQuestionLine');
+        const questionDiv=document.querySelector('.question');
+
+        //to toggle menu visibility
+        menuElement.classList.toggle('show');
+        //menuQuestionLine.classList.toggle('menu-open');
+
+        //determine if the question div is wide enough to adjust
+        if(menuElement.classList.contains('show')){
+            const isWide=questionDiv.offsetWidth>(menuQuestionLine.offsetWidth-100)
+            //if(!isWide) menuQuestionLine.classList.remove('menu-open');
+            if(isWide) menuQuestionLine.classList.toggle('menu-open');
+        }
+    });
 });
 
 //saves the content added to the text box to savedTextSpan... i thinnk

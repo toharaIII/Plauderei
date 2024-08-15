@@ -53,7 +53,8 @@ body {
     position: absolute;
     left: 0;
     top: 0;
-    display: block; 
+    display: block;
+    z-index: 1000;
     border: 1px solid green;
 }
 
@@ -61,8 +62,12 @@ body {
     margin-top: 60px;
     padding: 10px;
     font-size: 24px;
+    transition: margin-left 0.3s ease-in-out;
     border: 1px solid yellow;
 }
+
+.menu-open .menuQuestionLine {justify-content: flex-start;}
+.menu-open .question {margin-left: 100px;}
 
 label {
     font-weight: bold;
