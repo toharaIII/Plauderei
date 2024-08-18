@@ -80,7 +80,7 @@ body {
 }
 
 .menu-open .menuQuestionLine {justify-content: flex-start;}
-.menu-open .question {margin-left: 150px;}
+.menu-open .question {margin-left: 175px;}
 
 label {
     font-weight: bold;

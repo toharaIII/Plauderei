@@ -5,8 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
         questionDiv.textContent=newQuestion
     }
 
-    let questionString="really big string like om gholy shit big string like zoo wee mama thats got to be at least 2 lines"
-    //let questionString="Where does politics end and war begin?";
+    //let questionString="really big string like om gholy shit big string like zoo wee mama thats got to be at least 2 lines"
+    let questionString="Where does politics end and war begin?";
     updateQuestion(questionString);
 
     //changes the 3 bar menu to the X and adds show to the menu css id 
@@ -24,35 +24,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const isWide=questionDiv.offsetWidth>(menuQuestionLine.offsetWidth-100)
             if(isWide) menuQuestionLine.classList.add('menu-open');
         } else menuQuestionLine.classList.remove('menu-open'); //removes adjustment for questionDiv if .show is not present
-    });
-});
-
-let userAnswers=1;
-let userResponses=0;
-document.getElementById("answerCnt").textContent=userAnswers;
-document.getElementById("responseCnt").textContent=userResponses;
-
-//saves the content added to the text box to savedTextSpan... i thinnk
-document.addEventListener('DOMContentLoaded', function(){
-    const answerBox=document.getElementById('userAnswer');
-    const enterAnswer=document.getElementById('enterAnswer');
-    const savedTextSpan=document.getElementById('savedAnswer');
-
-    function saveText(){
-        const userAnswer=answerBox.value;
-        savedTextSpan.textContent=userAnswer;
-        console.log("saved string: ", userAnswer)
-    }
-
-    enterAnswer.addEventListener('click', function(){
-        saveText();
-    });
-
-    answerBox.addEventListener('keypress', function(event){
-        if (event.key==='Enter'){
-            event.preventDefault();
-            saveText();
-        }
     });
 });
 
