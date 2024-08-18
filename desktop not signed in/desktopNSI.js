@@ -5,8 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
         questionDiv.textContent=newQuestion
     }
 
-    let questionString="really big string like om gholy shit big string like zoo wee mama thats got to be at least 2 lines"
-    //let questionString="Is martyrdom for cowards?";
+    //let questionString="really big string like om gholy shit big string like zoo wee mama thats got to be at least 2 lines"
+    let questionString="Where does politics end and war begin?";
     updateQuestion(questionString);
 
     //changes the 3 bar menu to the X and adds show to the menu css id 
@@ -18,14 +18,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         //to toggle menu visibility
         menuElement.classList.toggle('show');
-        //menuQuestionLine.classList.toggle('menu-open');
 
-        //determine if the question div is wide enough to adjust
+        //determine if the question div is wide enough to adjust when menu is present
         if(menuElement.classList.contains('show')){
             const isWide=questionDiv.offsetWidth>(menuQuestionLine.offsetWidth-100)
-            //if(!isWide) menuQuestionLine.classList.remove('menu-open');
-            if(isWide) menuQuestionLine.classList.toggle('menu-open');
-        }
+            //if(isWide) menuQuestionLine.classList.toggle('menu-open');
+            if(isWide) menuQuestionLine.classList.add('menu-open');
+        } else menuQuestionLine.classList.remove('menu-open'); //removes adjustment for questionDiv if .show is not present
     });
 });
 
