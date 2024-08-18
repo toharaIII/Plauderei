@@ -15,31 +15,45 @@
         </div>
 
         <div class="title">Plauderei</div>
+
+        <div class="answersAndResponses">
+            Answers: <span id="answerCnt"></span><br>
+            Responses: <span id="responseCnt"></span>
+        </div>
     </div>
 
     <div class="menuQuestionLine">
         <nav id="menu">
-            <ul>
-                <li><a href="#">Home</a></li> <!--replace # with the real link for all anchors-->
-                <li><a href="#">About</a></li>
-                <li><a href="#">Services</a></li>
-                <li><a href="#">Contact</a></li>
-            </ul>
+            <!--<ul>-->
+                <div id="menuLink"><a href="#">Home</a></div> <!--replace # with the real link for all anchors-->
+                <div id="menuLink"><a href="#">My Profile</a></div>
+                <input type="search" id="userSearch" name="userName" placeholder="User Search">
+                <div id="menuLink"><a href="#">Settings</a></div>
+            <!--</ul>-->
         </nav>
 
         <div class="question"></div>
     </div>
 
+
     <div>
         <label for="userAnswer"></label>
-        <textarea id="userAnswer" placeholder="Type your answer..."></textarea>
+        <textarea id="userAnswer" placeholder="Your answer..."></textarea>
         <button id="enterAnswer">Enter Answer</button>
+    </div>
+
+    <div id="responsePopUp" class="responsePopUp">
+        <div class="popupContent">
+            <p>responses</p>
+        </div>
     </div>
 
     <div id="testOutput">
         <p>saved text: <span id="savedAnswer"></span></p>
     </div>
 
+    <div class="devCredit">Created by Thomas O'Hara :D</div>
+
     <script src="desktopNSI.js"></script>
 </body>
-</html>
+</html> 
