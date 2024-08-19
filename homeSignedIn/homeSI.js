@@ -42,6 +42,9 @@ document.addEventListener('DOMContentLoaded', function(){
         const userAnswer=answerBox.value;
         savedTextSpan.textContent=userAnswer;
         console.log("saved string: ", userAnswer)
+        answerBox.classList.add('hide')
+        enterAnswer.classList.add('hide')
+        alreadyAnswered.classList.add('show')
     }
 
     enterAnswer.addEventListener('click', function(){
@@ -63,9 +66,13 @@ document.addEventListener('DOMContentLoaded', function(){
     questionDiv.addEventListener('click', function(event){
         event.stopPropagation();
         popup.classList.add('show-popup');
+        alreadyAnswered.classList.remove('show')
     });
 
     document.addEventListener('click', function(event){
-        if(!popup.contains(event.target) && event.target!==questionDiv) popup.classList.remove('show-popup');
+        if(!popup.contains(event.target) && event.target!==questionDiv) {
+            popup.classList.remove('show-popup');
+            alreadyAnswered.classList.add('show')
+        }
     });
 });
