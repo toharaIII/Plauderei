@@ -57,10 +57,9 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 //creates the response popup when the question is clicked and removes it when anywhere else on the screen is clicked
+const questionDiv=document.querySelector('.question');
+const popup=document.getElementById('responsePopUp');
 document.addEventListener('DOMContentLoaded', function(){
-    const questionDiv=document.querySelector('.question');
-    const popup=document.getElementById('responsePopUp');
-
     questionDiv.addEventListener('click', function(event){
         event.stopPropagation();
         popup.classList.add('show-popup');

@@ -28,16 +28,34 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 //creates the response popup when the question is clicked and removes it when anywhere else on the screen is clicked
+const questionDiv=document.querySelector('.question');
+const popup=document.getElementById('responsePopUp');
+const signIn=document.getElementById('signIn');
 document.addEventListener('DOMContentLoaded', function(){
-    const questionDiv=document.querySelector('.question');
-    const popup=document.getElementById('responsePopUp');
-
     questionDiv.addEventListener('click', function(event){
         event.stopPropagation();
         popup.classList.add('show-popup');
+        signIn.classList.add('move')
     });
 
     document.addEventListener('click', function(event){
-        if(!popup.contains(event.target) && event.target!==questionDiv) popup.classList.remove('show-popup');
+        if(!popup.contains(event.target) && event.target!==questionDiv){
+            popup.classList.remove('show-popup');
+            signIn.classList.remove('move')
+        }
+    });
+});
+
+const signInPopUp=document.getElementById('signInPopUp')
+document.addEventListener('DOMContentLoaded', function(){
+    signIn.addEventListener('click', function(event){
+        event.stopPropagation();
+        signInPopUp.classList.add('show');
+    });
+
+    document.addEventListener('click', function(event){
+        if(!signInPopUp.contains(event.target) && event.target!==signInPopUp){
+            signInPopUp.classList.remove('show');
+        }
     });
 });
