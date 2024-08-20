@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PlaudereiSignedIn</title>
-    <link rel="stylesheet" href="homeSI.css">
+    <title>PlaudereiMyProfile</title>
+    <link rel="stylesheet" href="myProfile.css">
 </head>
 <body>
     <div class="titleLine">
@@ -24,7 +24,7 @@
 
     <div class="menuQuestionLine">
         <nav id="menu">
-            <div id="menuLink"><a href="../../myProfile/myProfileIndex.html">My Profile</a></div> <!--replace # with the real link for all anchors-->
+            <div id="menuLink"><a href="../../homeSignedIn/homeSIIndex.html">Home</a></div> <!--replace # with the real link for all anchors-->
             <input type="search" id="userSearch" name="userName" placeholder="User Search">
             <div id="menuLink"><a href="#">Settings</a></div>
             <div id="menuLink"><a href="../../homeNotSignedIn/homeNotSIIndex.html">Sign Out</a></div>
@@ -33,26 +33,8 @@
         <div class="question"></div>
     </div>
 
-
-    <div>
-        <label for="userAnswer"></label>
-        <textarea id="userAnswer" placeholder="Your answer..."></textarea>
-        <button id="enterAnswer">Enter Answer</button>
-        <div id="alreadyAnswered">You've already answered todays question, try replying to someone else's answer by clicking on the question!</div>
-    </div>
-
-    <div id="responsePopUp" class="responsePopUp">
-        <div class="popupContent">
-            <p>responses</p>
-        </div>
-    </div>
-
-    <div id="testOutput">
-        <p>saved text: <span id="savedAnswer"></span></p>
-    </div>
-
     <div class="devCredit">Created by Thomas O'Hara :D</div>
 
-    <script src="homeSI.js"></script>
+    <script src="myProfile.js"></script>
 </body>
-</html> 
+</html>
