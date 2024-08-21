@@ -1,11 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
     let userAnswers=1;
     let userResponses=0;
-    let userBadges=0;
+    let badgesCnt=2;
     let userName="Trey.Ohara";
     let userFirst="Trey";
     let userLast="O'Hara";
     let dateJoined="August 2024";
+    let userEntry="hey, im the dev!";
+    let friendCnt=35;
 
     //providing current answers and responses for given user, no need to update since cant reduce or add on this page
     document.getElementById("answerCnt").textContent=userAnswers;
@@ -15,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById("firstName").textContent=userFirst;
     document.getElementById("lastName").textContent=userLast;
     document.getElementById("dateJoined").textContent=dateJoined;
+    document.getElementById("userEntry").textContent=userEntry;
 
     document.getElementById('menuIcon').addEventListener('click', function(){
         this.classList.toggle('change');
@@ -28,22 +31,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function populationFriendsList(friendsCnt){
         const friendsListContent=document.getElementById('friendsListContent');
-
         friendsListContent.innerHTML=''; //this wipes the existing drop down content
 
         //this actually populates the drop down
-        for(let i=1; i<=friendsCnt; i++){
-            const option=document.createElement('a');
-            option.href='#'; //link to a friends page, iterate thru database
-            option.textContent='friend ${i}'; //switch to the friends user name
-            friendsListContent.appendChild(option);
+        for(let i=0; i<friendsCnt; i++){
+            const friend=document.createElement('a');
+            friend.href='#'; //link to a friends page, iterate thru database
+            friend.textContent='friend'; //switch to the friends user name
+            friendsListContent.appendChild(friend);
         }
     }
-    let friendCnt=15;
     populationFriendsList(friendCnt);
+
+    function populateBadges(badgesCnt){
+        const badgelocation=document.getElementById('badges');
+        badgelocation.innerHTML='';
+
+        for(let i=0; i<badgesCnt; i++){
+            const badge=document.createElement('img');
+            badge.src='../../badge.png';
+            badgelocation.appendChild(badge);
+        }
+    }
+    populateBadges(badgesCnt);
 
     document.querySelector('.showFriendsList').addEventListener('click', function(){
         const friendsListContent=document.getElementById('friendsListContent');
-        friendsListContent.style.display=friendsListContent.style.display==='block'?'none':'block';
+        friendsListContent.style.display=friendsListContent.style.display==='flex'?'none':'flex'; //cool different way of doing this, seems better then including a .show/.hide, switch all to this
     });
 });
