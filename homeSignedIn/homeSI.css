@@ -94,7 +94,7 @@ textarea {
     height: 50vh;
     padding: 10px;
     font-size: 16px;
-    border: 1px rgb(248, 239, 226);
+    border: none;
     border-radius: 5px;
     box-sizing: border-box;
     resize: vertical;
