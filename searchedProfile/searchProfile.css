@@ -1,0 +1,168 @@
+body {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    text-align: center;
+    background-color: rgb(247, 232, 209);
+    color: rgb(56, 56, 56);
+}
+
+.titleLine {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    position: relative;
+}
+.title {
+    padding-top: 10px;
+    font-size: 72px;
+}
+.menu-icon {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    display: inline-block;
+    cursor: pointer;
+    padding: 10px;
+}
+.bar1, .bar2, .bar3 {
+    width: 35px;
+    height: 5px;
+    background-color: rgb(56, 56, 56);
+    margin: 6px;
+    transition: 0.4s;
+}
+/*these turn the menu icon bars into the X icon after its clicked*/
+.change .bar1 {transform: rotate(-45deg) translate(-9px, 6px);} 
+.change .bar2 {opacity: 0;}
+.change .bar3 {transform: rotate(45deg) translate(-8px, -8px);}
+
+.menuQuestionLine {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    position: relative;
+}
+#menu {display: none;}
+/*need to add some tyleize to this one*/
+#menu.show {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: block;
+    z-index: 1000;
+    background-color: rgb(248, 239, 226);
+    border: none;
+    border-radius: 5px;
+}
+
+#profileInfo{
+    display: block;
+    margin-top: 30px;
+    margin-left: 40px;
+    margin-right: 40px;
+    padding-top: 10px;
+    background-color: rgb(248, 239, 226);
+    border: none;
+    border-radius: 5px;
+}
+#badges {
+    margin-left: 15px;
+    margin-right: 15px;
+    text-align: left;
+}
+#badges img {
+    margin-right: 10px;
+    width: 20px;
+    height: 20px;
+}
+
+#userInfo {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-gap: 2px;
+    padding-top: 10px;
+}
+#userNameDisplayed {
+    grid-column: 1;
+    grid-row: 1;
+}
+#realNameStored {
+    grid-column: 1;
+    grid-row: 2;
+}
+#joinDate {
+    grid-column: 1;
+    grid-row: 3;
+    margin-bottom: 5px;
+}
+
+#userBio {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+}
+
+.friendsList {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    margin-right: 10px;
+}
+.showFriendsList {
+    background-color: rgb(247, 247, 247);
+    font-size: 16px;
+    height: 100%;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.friendsListContent {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 10px;
+    background-color: rgb(247, 247, 247);
+    border: none;
+    border-radius: 5px;
+    width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+#pinnedAnswers {
+    display: block;
+    margin-top: 30px;
+    margin-left: 40px;
+    margin-right: 40px;
+    height: 60vh;
+    padding: 10px 10px 10px 10px;
+    background-color: rgb(248, 239, 226);
+    border: none;
+    border-radius: 5px;
+    overflow-y: auto;
+    text-align: left;
+}
+#pinnedAnswers img {
+    width: 20px;
+    height: 20px;
+}
+#pinnedOne, #pinnedTwo, #pinnedThree {
+    display: none;
+    margin-top: 10px;
+    padding: 5px 5px 5px 5px;
+    background-color: rgb(247, 247, 247);
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.devCredit {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    font-size: 12px;
+}
