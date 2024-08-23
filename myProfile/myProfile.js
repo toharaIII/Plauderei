@@ -1,25 +1,28 @@
 document.addEventListener('DOMContentLoaded', function() {
     let userAnswers=1;
     let userResponses=0;
+
     let badgesCnt=35;
     let userName="Trey.Ohara";
-    let userFirst="Trey";
-    let userLast="O'Hara";
+    let name=localStorage.getItem('name')||"Trey O'Hara";
     let dateJoined="August 2024";
-    let userEntry="hey, im the dev!";
+    let userEntry=localStorage.getItem('userEntry')||"hey, im the dev!";
     let friendCnt=35;
+
     let submittedQuestionsArray=["Is determining when ai has reached agi a civil rights problem; as opposed to an engineering problem?",
         "Is there a blanket statement you can about when it becomes worth it to break laws?",
         "Is the inspiration for all non-hedonistic things legacy?"];
 
+    let pinnedOneString='';
+    let pinnedTwoString='';
+    let pinnedThreeString='';
 
     //providing current answers and responses for given user, no need to update since cant reduce or add on this page
     document.getElementById("answerCnt").textContent=userAnswers;
     document.getElementById("responseCnt").textContent=userResponses;
 
     document.getElementById("userName").textContent=userName;
-    document.getElementById("firstName").textContent=userFirst;
-    document.getElementById("lastName").textContent=userLast;
+    document.getElementById("name").textContent=name;
     document.getElementById("dateJoined").textContent=dateJoined;
     document.getElementById("userEntry").textContent=userEntry;
     
@@ -32,6 +35,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
         //to toggle menu visibility
         menuElement.classList.toggle('show');
+    });
+
+    document.getElementById('changeName').addEventListener('keypress', function(event) {
+        if (event.key==='Enter') {
+            name=event.target.value;
+            localStorage.setItem('name', name);
+            location.reload();
+        }
+    });
+    document.getElementById('changeBio').addEventListener('keypress', function(event) {
+        if (event.key==='Enter') {
+            userEntry=event.target.value;
+            localStorage.setItem('userEntry', userEntry);
+            location.reload();
+        }
     });
 
     function determineMaxBadges(){
@@ -62,6 +80,11 @@ document.addEventListener('DOMContentLoaded', function() {
     populateBadges(badgesCnt);
     window.addEventListener('resize', ()=> {
         populateBadges(badgesCnt);
+    });
+
+    document.querySelector('.settingsButton').addEventListener('click', function(){
+        const settingsContent=document.getElementById('settingsContent');
+        settingsContent.style.display=settingsContent.style.display==='flex'?'none':'flex'; //cool different way of doing this, seems better then including a .show/.hide, switch all to this
     });
 
     function populateFriendsList(friendsCnt){
@@ -108,4 +131,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const submittedQuestionsContent=document.getElementById('submittedQuestionsContent');
         submittedQuestionsContent.style.display=submittedQuestionsContent.style.display==='flex'?'none':'flex';
     });
+
+    //call with the second variable as a string
+    function updatePinned(pinnedString, pinNum){
+        if (pinnedString!=''){
+            const pinnedNum=document.getElementById(`${pinNum}`);
+            const string=document.createElement('span');
+            string.textContent=`${pinnedString}`;
+            pinnedNum.appendChild(string)
+            pinnedNum.style.display=pinnedNum.style.display==='block'?'none':'block';
+        }
+    };
 });

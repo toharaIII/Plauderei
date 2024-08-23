@@ -29,16 +29,23 @@
             <div id="menuLink"><a href="#">Settings</a></div>
             <div id="menuLink"><a href="../../homeNotSignedIn/homeNotSIIndex.html">Sign Out</a></div>
         </nav>
-
-        <div class="question"></div>
     </div>
 
     <div id="profileInfo">
-        <div id="badges"></div> <!--need to add some way to show a #+ if the user has more badges then can be displayed-->
+        <div id="badges"></div>
         <div id="userInfo">
             <div id="userNameDisplayed">@<span id="userName"></span></div>
-            <div id="realNameStored"><span id="firstName"></span> <span id="lastName"></span></div>
-            <div id="joinDate">Joined on: <span id="dateJoined"></span></div>
+            <div id="realNameStored"><span id="name"></span></div>
+            <div id="settingsAndJoined">
+                <div id="settings">
+                    <button id="settingsButton" class="settingsButton"><img id="settingsIcon" src="../settings.png"></button>
+                    <div id="settingsContent">
+                        Change Name: <input type="text" id="changeName" placeholder="New Name...">
+                        Change Bio: <textarea id="changeBio" placeholder="New Bio..."></textarea>
+                    </div>
+                </div>
+                <div id="joinDate">Joined on: <span id="dateJoined"></span></div>
+            </div>
             <div id="userBio"><span id="userEntry"></span></div>
             <div class="friendsList">
                 <button class="showFriendsList">Friends: </button>
@@ -57,6 +64,13 @@
                 <div id="submittedQuestionsContent" class="submittedQuestionsContent"></div>
             </div>
         </div>
+    </div>
+
+    <div id="pinnedAnswers" class="pinnedAnswers">
+        <img id="pin" src="../pin.png"> Pinned Answers and Responses:
+        <div id="pinnedOne"></div>
+        <div id="pinnedTwo"></div>
+        <div id="pinnedThree"></div>
     </div>
 
     <div class="devCredit">Created by Thomas O'Hara :D</div>
