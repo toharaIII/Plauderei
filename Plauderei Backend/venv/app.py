@@ -13,7 +13,7 @@ dbConfig={ #this signs into the local mySQL server and opens the plauderei_db da
 
 def getDBConnection():
     return mysql.connector.connect(**dbConfig) #creates a new database connection object, connected to plauderei_db
-
+                                                # ** is the unpacking operation which when used in a function allows you to pass in each dict key value pair without writing them out
 @app.route('/')
 def index():
     return 'welcome to user management API :D'
@@ -24,7 +24,7 @@ fetchs all columns for a given user except for passowrd for security
 @app.route('/data/<int:userID>', methods=['GET']) 
 def getUser(userID):
     conn=getDBConnection()
-    cursor=conn.cursor(dictionary=True)
+    cursor=conn.cursor(dictionary=True) #dictionary=True means that the output from mysql is returned as a dictionary instead of a tuple
     cursor.execute('SELECT userID, username, name, bio, friendsList, questions, pinnedAnswers, dateJoined FROM users WHERE userID=%s', (userID,))
     user=cursor.fetchone()
     conn.close()
@@ -38,7 +38,7 @@ fills all required columns (userID, username, password and dateJoined) for a new
 """
 @app.route('/users', methods=['POST'])
 def createUser():
-    data=request.json
+    data=request.json #extracts the data sent in the json post message into data
     requiredFields=['username','password','dateJoined'] #userID autoincrements when a new row is created
 
     if not all(field in data for field in requiredFields): #if no key in the submitted data corresponding key name, return error
@@ -69,9 +69,9 @@ update function that lets the data json contain as few or as many columns to be 
 @app.route('/users/<int:userID>', methods=['PATCH'])
 def updateUserColumns(userID):
     data=request.json
-    allowedColumns=['username','name','password','bio','friendsList','questions','pinnedAnswers','dateJoined']
-    jsonColumns=['friendsList','questions','pinnedAnswers'] #columns with json datatype, need to handle separately
-    updateColumns=[col for col in data.keys() if col in allowedColumns] #elements are all keys from data that match to an element in allowedColumns
+    allowedColumns=['username', 'name', 'password', 'bio', 'friendsList', 'questions', 'pinnedAnswers', 'dateJoined']
+    jsonColumns=['friendsList', 'questions', 'pinnedAnswers'] #columns with json datatype, need to handle separately
+    updateColumns=[col for col in data.keys() if col in allowedColumns]
 
     if not updateColumns:
         return jsonify({"error": "No valid columns to update"}), 400
@@ -84,16 +84,15 @@ def updateUserColumns(userID):
 
     for col in updateColumns:
         value=data[col]
-        if col in jsonColumns and isinstance(value, list):
-            value=json.dumps(value)
         if col in jsonColumns:
-            setClauses.append("{0}=JSON_ARRAY_APPEND({0}, '$', %s)".format(col))
+            value=json.dumps(value)  # Convert list to JSON string
+            setClauses.append(f"{col} = CAST(%s AS JSON)")
         else:
-            setClauses.append("{0}=%s".format(col))
+            setClauses.append(f"{col} = %s")
         values.append(value)
 
     setClause=', '.join(setClauses)
-    query="UPDATE users SET {} WHERE userID=%s".format(setClause)
+    query=f"UPDATE users SET {setClause} WHERE userID = %s"
     values.append(userID)
 
     try:
