@@ -192,3 +192,53 @@ body {
 }
 
 #createAccount:hover {background-color: rgb(248, 239, 226);}
+
+#createAccountPopUp {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 50%;
+    top: 30%;
+    width: 25vh;
+    height: 20vh;
+    border: none;
+    border-radius: 5px;
+    background-color: rgb(248, 239, 226);
+    transform: translate(-50%, -50%);
+}
+
+#createAccountPopUp.show {display: block;}
+
+#newUser {
+    display: block;
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: auto;
+    border: 1px solid rgb(248, 239, 226);
+}
+
+#newUserPassword {
+    display: block;
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: auto;
+    border: 1px solid rgb(248, 239, 226);
+}
+
+#createAccountSubmit {
+    display: block;
+    padding: 10px 20px;
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: auto;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: rgb(247, 247, 247);
+    transition: background-color 0.3s;
+    color: rgb(56, 56, 56);
+}

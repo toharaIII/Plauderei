@@ -1,8 +1,11 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import mysql.connector
 import json
+from datetime import datetime
 
 app=Flask(__name__) #creates a flask object
+CORS(app) #might want to see if this is a security issue once we get to production
 
 dbConfig={ #this signs into the local mySQL server and opens the plauderei_db database
     'user':'root',
@@ -38,30 +41,76 @@ fills all required columns (userID, username, password and dateJoined) for a new
 """
 @app.route('/users', methods=['POST'])
 def createUser():
-    data=request.json #extracts the data sent in the json post message into data
-    requiredFields=['username','password','dateJoined'] #userID autoincrements when a new row is created
+    data=request.json
+    requiredFields=['username', 'password', 'dateJoined']
 
-    if not all(field in data for field in requiredFields): #if no key in the submitted data corresponding key name, return error
-        return jsonify({"error": "Missing required fields"}), 400
+    if not all(field in data for field in requiredFields):
+        return jsonify({"success": False, "error": "Missing required fields"}), 400
     
+    try:
+        date_joined=datetime.fromisoformat(data['dateJoined'].replace('Z', '+00:00')).strftime('%Y-%m-%d %H:%M:%S')
+    except ValueError as e:
+        return jsonify({"success": False, "error": "Invalid date format"}), 400 #success key lets js know to go to the signin home or not
+
     conn=getDBConnection()
     cursor=conn.cursor()
-    query='''INSERT INTO users (username, name, password, bio, friendsList, questions, pinnedAnswers, dateJoined)
-             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)'''
-    values=(data['username'], data.get('name'), data['password'],
-            data.get('bio'), data.get('friendsList'), data.get('questions'),
-            data.get('pinnedAnswers'), data['dateJoined'])
+    query='''INSERT INTO users (username, password, dateJoined)
+               VALUES (%s, %s, %s)'''
+    values=(data['username'], data['password'], date_joined)
     
     try:
         cursor.execute(query, values)
         conn.commit()
         newID=cursor.lastrowid
         conn.close()
-        return jsonify({"userID": newID, "message": "User created successfully"}), 201
+        return jsonify({"success": True, "userID": newID, "message": "User created successfully"}), 201
     
     except mysql.connector.IntegrityError:
         conn.close()
-        return jsonify({"error": "Username already exists"}), 409
+        return jsonify({"success": False, "error": "Username already exists"}), 409
+
+@app.route('/login', methods=['POST'])
+def login():
+    data=request.json
+    if 'username' not in data or 'password' not in data:
+        return jsonify({"success": False, "error": "Missing username or password"}), 400
+
+    username=data['username']
+    password=data['password']
+
+    conn=getDBConnection()
+    cursor=conn.cursor(dictionary=True)
+    
+    try:
+        # Fetch the user from the database
+        query = "SELECT * FROM users WHERE username = %s"
+        cursor.execute(query, (username,))
+        user = cursor.fetchone()
+
+        if user and user['password'] == password:  # In production, use password hashing!
+            # Password is correct
+            return jsonify({
+                "success": True,
+                "message": "Login successful",
+                "userID": user['userID']
+            }), 200
+        else:
+            # Invalid username or password
+            return jsonify({
+                "success": False,
+                "error": "Invalid username or password"
+            }), 401
+
+    except mysql.connector.Error as err:
+        print(f"Database error: {err}")
+        return jsonify({
+            "success": False,
+            "error": "An error occurred while logging in"
+        }), 500
+
+    finally:
+        cursor.close()
+        conn.close()
 
 """
 update function that lets the data json contain as few or as many columns to be updated as you want

@@ -49,9 +49,80 @@ document.addEventListener('DOMContentLoaded', function() {
         signInPopUp.classList.add('show');
     });
 
+    signInSubmit.addEventListener('click', function(){
+        const username=document.getElementById('emailUser').value;
+        const password=document.getElementById('emailUserPassword').value;
+
+        const data={
+            username: username,
+            password: password
+        };
+
+        fetch('http://127.0.0.1:5000/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+        .then(response=>{
+            if(!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data=>{
+            if(data.success){
+                localStorage.setItem('userID', data.userID);
+                window.location.href='../../homeSignedIn/homeSIIndex.html';
+            }else alert(data.error || 'Invalid username or password. Please try again.');
+        })
+        .catch((error)=>{
+            console.error('Error:', error);
+            alert('An error occured while trying to log in. Please try again later.')
+        });
+    });
+
     document.addEventListener('click', function(event){
         if(!signInPopUp.contains(event.target) && event.target!==signInPopUp){
             signInPopUp.classList.remove('show');
+        }
+    });
+
+    createAccount.addEventListener('click', function(event){
+        event.stopPropagation();
+        createAccountPopUp.classList.add('show');
+    });
+
+    createAccountSubmit.addEventListener('click', function(){
+        const username=document.getElementById('newUser').value;
+        const password=document.getElementById('newUserPassword').value;
+        const now=new Date().toISOString();
+    
+        const data={
+            username: username,
+            password: password,
+            dateJoined: now
+        };
+    
+        fetch('http://127.0.0.1:5000/users', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+        .then(response=>{
+            if(!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data=>{
+            if(data.success) window.location.href = '../../homeSignedIn/homeSIIndex.html';
+            else alert(data.error || 'Failed to create account. Please try again.');
+        })
+        .catch((error)=>{
+            console.error('Error:', error);
+            alert('An error occurred while trying to create your account. Please try again later.');
+        });
+    });
+
+    document.addEventListener('click', function(event){
+        if(!createAccountPopUp.contains(event.target) && event.target!==createAccountPopUp){
+            createAccountPopUp.classList.remove('show');
         }
     });
 });
