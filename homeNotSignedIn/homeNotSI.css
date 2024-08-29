@@ -60,6 +60,14 @@ body {
     border-radius: 5px;
 }
 
+#searchSubmit {
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: rgb(248, 239, 226);
+    color: rgb(56, 56, 56);
+}
+
 .question {
     margin-top: 40px;
     padding: 10px;

@@ -54,8 +54,7 @@ def createUser():
 
     conn=getDBConnection()
     cursor=conn.cursor()
-    query='''INSERT INTO users (username, password, dateJoined)
-               VALUES (%s, %s, %s)'''
+    query='''INSERT INTO users (username, password, dateJoined) VALUES (%s, %s, %s)'''
     values=(data['username'], data['password'], date_joined)
     
     try:
@@ -69,7 +68,10 @@ def createUser():
         conn.close()
         return jsonify({"success": False, "error": "Username already exists"}), 409
 
-@app.route('/login', methods=['POST'])
+"""
+searches for user and makes sure that if the user is found the password is also the same
+"""
+@app.route('/login', methods=['POST']) #read that post is better for security
 def login():
     data=request.json
     if 'username' not in data or 'password' not in data:
@@ -83,37 +85,55 @@ def login():
     
     try:
         # Fetch the user from the database
-        query = "SELECT * FROM users WHERE username = %s"
+        query="SELECT * FROM users WHERE username = %s"
         cursor.execute(query, (username,))
-        user = cursor.fetchone()
+        user=cursor.fetchone()
 
         if user and user['password'] == password:  # In production, use password hashing!
-            # Password is correct
-            return jsonify({
-                "success": True,
-                "message": "Login successful",
-                "userID": user['userID']
-            }), 200
+            return jsonify({"success": True, "message": "Login successful", "userID": user['userID']}), 200
         else:
-            # Invalid username or password
-            return jsonify({
-                "success": False,
-                "error": "Invalid username or password"
-            }), 401
+            return jsonify({"success": False, "error": "Invalid username or password"}), 401
 
     except mysql.connector.Error as err:
         print(f"Database error: {err}")
-        return jsonify({
-            "success": False,
-            "error": "An error occurred while logging in"
-        }), 500
+        return jsonify({"success": False, "error": "An error occurred while logging in"}), 500
 
     finally:
         cursor.close()
         conn.close()
 
 """
-update function that lets the data json contain as few or as many columns to be updated as you want
+Searching the database for a given user
+"""
+@app.route('/users/search', methods=['POST'])
+def searchUser():
+    data=request.json
+    if 'username' not in data:
+        return jsonify({"success": False, "error": "Missing username"}), 400
+    username=data['username']
+
+    conn=getDBConnection()
+    cursor=conn.cursor(dictionary=True)
+    try:
+        # Fetch the user from the database
+        query="SELECT * FROM users WHERE username = %s"
+        cursor.execute(query, (username,))
+        user=cursor.fetchone()
+        if user:
+            return jsonify({"success": True, "message": "User found", "userID": user['userID']}), 200
+        else:
+            return jsonify({"success": False, "error": "Invalid username"}), 401
+
+    except mysql.connector.Error as err:
+        print(f"Database error: {err}")
+        return jsonify({"success": False, "error": "An error occurred while searching for this user"}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
+"""
+update function that lets the data json contain as few or as many columns to be updated as needed for the user associated with the userID passed in through the url
 """
 @app.route('/users/<int:userID>', methods=['PATCH'])
 def updateUserColumns(userID):
@@ -157,6 +177,9 @@ def updateUserColumns(userID):
         conn.close()
         return jsonify({"error": str(err)}), 500
     
+"""
+deletes the user that is associated with the userID passed in via the url
+"""
 @app.route('/data/<int:userID>', methods=['DELETE'])
 def deleteUser(userID):
     conn=getDBConnection()
@@ -174,8 +197,6 @@ def deleteUser(userID):
         return jsonify({"error":str(err)}), 500
     finally:
         conn.close()
-
-
 
 if __name__=='__main__':
     app.run(debug=True)

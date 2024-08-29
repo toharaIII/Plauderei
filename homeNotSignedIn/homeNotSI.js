@@ -1,4 +1,4 @@
-//generates string newQuestion onto the page
+//ensures all functions inside the DOM will run once page is fully loaded
 document.addEventListener('DOMContentLoaded', function() {
     //let questionString="really big string like om gholy shit big string like zoo wee mama thats got to be at least 2 lines"
     let questionString="Where does politics end and war begin?";
@@ -29,6 +29,37 @@ document.addEventListener('DOMContentLoaded', function() {
             const isWide=questionDiv.offsetWidth>(menuQuestionLine.offsetWidth-100)
             if(isWide) menuQuestionLine.classList.add('menu-open');
         } else menuQuestionLine.classList.remove('menu-open'); //removes adjustment for questionDiv if .show is not present
+    });
+
+    searchSubmit.addEventListener('click', function(){
+        const url='http://127.0.0.1:5000/users/search';
+        user=document.getElementById('userSearch').value;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({username: user})
+        })
+        .then(response => {
+            if(!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            if(data.success) {
+                console.log('User found:', data.message);
+                console.log('Searched User ID:', data.userID);
+                localStorage.setItem('searchUserID', data.userID);
+                window.location.href='../../searchedProfile/searchProfileIndex.html';
+            } else {
+                console.log('User not found:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
     });
 
     questionDiv.addEventListener('click', function(event){
