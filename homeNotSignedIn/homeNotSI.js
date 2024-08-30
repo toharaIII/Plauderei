@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if(data.success) {
                 localStorage.setItem('searchUserName', user);
-                localStorage.setItem('searchUserID', data.userID)
+                localStorage.setItem('searchUserID', data.userID);
                 window.location.href='../../searchedProfile/searchProfileIndex.html';
             } else {
                 console.log('User not found:', data.error);
@@ -120,12 +120,10 @@ document.addEventListener('DOMContentLoaded', function() {
     createAccountSubmit.addEventListener('click', function(){
         const username=document.getElementById('newUser').value;
         const password=document.getElementById('newUserPassword').value;
-        const now=new Date().toISOString();
     
         const data={
             username: username,
-            password: password,
-            dateJoined: now
+            password: password
         };
     
         fetch('http://127.0.0.1:5000/users', {

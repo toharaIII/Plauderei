@@ -28,9 +28,12 @@ fetchs all columns for a given user except for passowrd for security
 def getUser(userID):
     conn=getDBConnection()
     cursor=conn.cursor(dictionary=True) #dictionary=True means that the output from mysql is returned as a dictionary instead of a tuple
-    cursor.execute('SELECT userID, username, name, bio, friendsList, questions, pinnedAnswers, dateJoined FROM users WHERE userID=%s', (userID,))
+    cursor.execute('SELECT username, name, bio, friendsList, pinnedAnswers, dateJoined, badges FROM users WHERE userID=%s', (userID,))
     user=cursor.fetchone()
     conn.close()
+
+    date_joined=datetime.strptime(str(user['dateJoined']), '%Y-%m-%d %H:%M:%S')
+    user['dateJoined']=date_joined.strftime('%B %Y')
 
     if user:
         return jsonify(user)
@@ -42,13 +45,14 @@ fills all required columns (userID, username, password and dateJoined) for a new
 @app.route('/users', methods=['POST'])
 def createUser():
     data=request.json
-    requiredFields=['username', 'password', 'dateJoined']
+    requiredFields=['username', 'password']
 
     if not all(field in data for field in requiredFields):
         return jsonify({"success": False, "error": "Missing required fields"}), 400
     
     try:
-        date_joined=datetime.fromisoformat(data['dateJoined'].replace('Z', '+00:00')).strftime('%Y-%m-%d %H:%M:%S')
+        now = datetime.now()
+        date_joined = now.strftime('%Y-%m-%d %H:%M:%S')
     except ValueError as e:
         return jsonify({"success": False, "error": "Invalid date format"}), 400 #success key lets js know to go to the signin home or not
 

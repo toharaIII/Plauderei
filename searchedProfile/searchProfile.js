@@ -1,31 +1,63 @@
 document.addEventListener('DOMContentLoaded', function() {
     
-    let searchedUserId=localStorage.getItem('userID'); //gets the signed in user's userID
-    let badgesCnt=3;
+    let searchedUserId=localStorage.getItem('searchUserID');
+    let badgesCnt=0;
     let searchedUser=localStorage.getItem('searchUserName');
-    let name="Jad Yazbeck";
-    let dateJoined="August 2024";
-    let userEntry="first user!";
-    let friendCnt=3
+    let name="";
+    let dateJoined="";
+    let userBio="";
+    let friendCnt=0;
+    let friends=[];
+    let pinnedAnswers=[];
 
-    let pinnedOneString='';
-    let pinnedTwoString='';
-    let pinnedThreeString='';
+    console.log(searchedUserId);
+    console.log(localStorage.getItem('searchUserName'), localStorage.getItem('searchUserID'));
+
+    function updateUI(){
+        document.getElementById("userName").textContent=searchedUser;
+        document.getElementById("name").textContent=name;
+        document.getElementById("dateJoined").textContent=dateJoined;
+        document.getElementById("userEntry").textContent=userBio;
+    }
 
     function populatePage(){
-        //need to get all the shit so not username but osmething is wrong with that
-        //but need name, dateJoined, number of badges, bio, pinned answers, friends list
-        //need to build actual pinned answers and responses functionality as well
-        //need to see if signed in user is friends with searched user and if so hide add friend button and show remove friend button
-        //still need to test add and remvoe friend, need to find way to see live output of friendslist on mysql server
-    }
-    //providing current answers and responses for given user, no need to update since cant reduce or add on this page
+        const url=`http://127.0.0.1:5000/data/${searchedUserId}`;
+        console.log(url);
 
-    document.getElementById("userName").textContent=userName;
-    document.getElementById("name").textContent=name;
-    document.getElementById("dateJoined").textContent=dateJoined;
-    document.getElementById("userEntry").textContent=userEntry;
-    
+        fetch(url, {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json'},
+        })
+        .then(response=>{
+            if(!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data=>{
+            if(data.dateJoined) console.log('booya :P')
+            else console.log(data.error || 'This User Doesnt seem to exist? Thats weird :|');
+            name=data.name || 'No Name';
+            dateJoined=data.dateJoined;
+            userBio=data.bio || 'No Bio';
+            badgesCnt=data.badges;
+            friends=Array.isArray(data.friendsList) ? data.friendsList : JSON.parse(data.friendsList);
+            friendCnt=friends.length;
+            pinnedAnswers=Array.isArray(data.pinnedAnswers) ? data.pinnedAnswers : [];
+            updateUI();
+            populateBadges(badgesCnt);
+            populateFriendsList(friendCnt);
+        })
+        .catch((error)=>{
+            console.error('Error:', error);
+            alert('An error occured while trying to find this user. Please try again later.');
+        });
+    }
+    populatePage();
+    //need to get all the shit so not username but osmething is wrong with that
+    //but need name, dateJoined, number of badges, bio, pinned answers, friends list
+    //need to build actual pinned answers and responses functionality as well
+    //need to see if signed in user is friends with searched user and if so hide add friend button and show remove friend button
+    //still need to test add and remvoe friend, need to find way to see live output of friendslist on mysql server
+    //providing current answers and responses for given user, no need to update since cant reduce or add on this page
 
     document.getElementById('menuIcon').addEventListener('click', function(){
         this.classList.toggle('change');
@@ -74,8 +106,8 @@ document.addEventListener('DOMContentLoaded', function() {
         //this actually populates the drop down
         for(let i=0; i<friendsCnt; i++){
             const friend=document.createElement('a');
-            friend.href='#'; //link to a friends page, iterate thru database
-            friend.textContent=`friend ${i+1}`; //switch to the friends user name
+            friend.href='../../searchedProfile/searchProfileIndex.html'; //link to a friends page, iterate thru database
+            friend.textContent=friends[i]; //switch to the friends user name
             friendsListContent.appendChild(friend);
         }
     };
