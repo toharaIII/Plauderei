@@ -139,16 +139,48 @@ body {
     margin-left: 40px;
     margin-right: 40px;
     height: 60vh;
-    padding: 10px 10px 10px 10px;
+    padding: 10px 10px 5px 10px;
     background-color: rgb(248, 239, 226);
-    border: none;
-    border-radius: 5px;
     overflow-y: auto;
     text-align: left;
 }
 #pinnedAnswers img {
     width: 20px;
     height: 20px;
+}
+#pinAndFriend {
+    display: inline-block;
+    max-height: 50px;
+    width: 99%;
+}
+#addFriend {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    min-height: 30px;
+    float: right;
+    background-color: rgb(247, 247, 247);
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+#addFriend.hide {display: none;}
+#removeFriend {
+    display: none;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    min-height: 30px;
+    float: right;
+    right: 100%;
+    background-color: rgb(247, 247, 247);
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+#removeFriend.show {display: inline-block;}
+#pins {
+    display: block;
 }
 #pinnedOne, #pinnedTwo, #pinnedThree {
     display: none;

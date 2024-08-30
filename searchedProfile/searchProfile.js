@@ -1,20 +1,24 @@
 document.addEventListener('DOMContentLoaded', function() {
-
+    
+    let searchedUserId=localStorage.getItem('userID'); //gets the signed in user's userID
     let badgesCnt=3;
-    let userName="Jado";
+    let searchedUser=localStorage.getItem('searchUserName');
     let name="Jad Yazbeck";
     let dateJoined="August 2024";
     let userEntry="first user!";
-    let friendCnt=12;
-
-    let submittedQuestionsArray=["Is determining when ai has reached agi a civil rights problem; as opposed to an engineering problem?",
-        "Is there a blanket statement you can about when it becomes worth it to break laws?",
-        "Is the inspiration for all non-hedonistic things legacy?"];
+    let friendCnt=3
 
     let pinnedOneString='';
     let pinnedTwoString='';
     let pinnedThreeString='';
 
+    function populatePage(){
+        //need to get all the shit so not username but osmething is wrong with that
+        //but need name, dateJoined, number of badges, bio, pinned answers, friends list
+        //need to build actual pinned answers and responses functionality as well
+        //need to see if signed in user is friends with searched user and if so hide add friend button and show remove friend button
+        //still need to test add and remvoe friend, need to find way to see live output of friendslist on mysql server
+    }
     //providing current answers and responses for given user, no need to update since cant reduce or add on this page
 
     document.getElementById("userName").textContent=userName;
@@ -79,6 +83,62 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('.showFriendsList').addEventListener('click', function(){
         const friendsListContent=document.getElementById('friendsListContent');
         friendsListContent.style.display=friendsListContent.style.display==='flex'?'none':'flex'; //cool different way of doing this, seems better then including a .show/.hide, switch all to this
+    });
+
+    document.getElementById('addFriend').addEventListener('click', function(){
+        const addButton=document.getElementById('addFriend');
+        const removeButton=document.getElementById('removeFriend');
+        addButton.classList.add('hide');
+        removeButton.classList.add('show');
+
+        const url=`http://127.0.0.1:5000/users/${searchedUserId}`;
+        const data={friendsList: [searchedUser]};
+
+        fetch(url, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+        .then(response=>{
+            if(!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data=>{
+            if(data.success) alert('booya :P')
+            else alert(data.error || 'This User Doesnt seem to exist? Thats weird :|');
+        })
+        .catch((error)=>{
+            console.error('Error:', error);
+            alert('An error occured while trying to add this user. Please try again later.');
+        });
+    });
+
+    document.getElementById('removeFriend').addEventListener('click', function(){
+        const removeButton=document.getElementById('removeFriend');
+        const addButton=document.getElementById('addFriend');
+        removeButton.classList.add('hide');
+        addButton.classList.add('show');
+
+        const url=`http://127.0.0.1:5000/users/${searchedUserId}/removeFriend`;
+        const data={friend: searchedUser};
+
+        fetch(url, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+        .then(response=>{
+            if(!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data=>{
+            if (data.message) alert('Friend removed successfully!');
+            else alert(data.error || 'Failed to remove friend.');
+        })
+        .catch(error=>{
+            console.error('Error:', error);
+            alert('An error occurred while trying to remove this user. Please try again later.');
+        });
     });
 
     //call with the second variable as a string

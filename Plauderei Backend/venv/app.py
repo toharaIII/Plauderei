@@ -138,7 +138,7 @@ update function that lets the data json contain as few or as many columns to be 
 @app.route('/users/<int:userID>', methods=['PATCH'])
 def updateUserColumns(userID):
     data=request.json
-    allowedColumns=['username', 'name', 'password', 'bio', 'friendsList', 'questions', 'pinnedAnswers', 'dateJoined']
+    allowedColumns=['name', 'password', 'bio', 'friendsList', 'questions', 'pinnedAnswers', 'dateJoined']
     jsonColumns=['friendsList', 'questions', 'pinnedAnswers'] #columns with json datatype, need to handle separately
     updateColumns=[col for col in data.keys() if col in allowedColumns]
 
@@ -176,7 +176,39 @@ def updateUserColumns(userID):
     except mysql.connector.Error as err:
         conn.close()
         return jsonify({"error": str(err)}), 500
+
+"""
+since removing a friend has a very specific sql command set up it didnt seem worth it to try and tie it in with the other command
+"""
+@app.route('/users/<int:userID>/removeFriend', methods=['PATCH'])
+def removeFriend(userID):
+    data=request.json
+    friendToRemove=data.get('friend')
+
+    if not friendToRemove:
+        return jsonify({"error": "No friend specified to remove"}), 400
     
+    conn=getDBConnection()
+    cursor=conn.cursor()
+
+    # SQL query to remove the friend from the JSON array in MySQL
+    query="""
+        UPDATE users
+        SET friendsList = JSON_REMOVE(friendsList, 
+            JSON_UNQUOTE(JSON_SEARCH(friendsList, 'one', %s)))
+        WHERE userID = %s
+    """
+    cursor.execute(query, (friendToRemove, userID))
+    
+    conn.commit()
+    affectedRows = cursor.rowcount
+    conn.close()
+
+    if affectedRows:
+        return jsonify({"message": "Friend removed successfully"}), 200
+    return jsonify({"error": "User not found or friend not found"}), 404
+
+
 """
 deletes the user that is associated with the userID passed in via the url
 """
