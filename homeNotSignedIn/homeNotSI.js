@@ -1,5 +1,7 @@
 //ensures all functions inside the DOM will run once page is fully loaded
 document.addEventListener('DOMContentLoaded', function() {
+    let signedInBoolean=false;
+    localStorage.setItem('signedInBoolean', signedInBoolean); //will prevent people that arent signed in from doing signed in shit
     //let questionString="really big string like om gholy shit big string like zoo wee mama thats got to be at least 2 lines"
     let questionString="Where does politics end and war begin?";
     const questionDiv=document.querySelector('.question');

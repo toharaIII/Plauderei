@@ -10,6 +10,36 @@ document.addEventListener('DOMContentLoaded', function() {
     let friends=[];
     let pinnedAnswers=[];
 
+    searchSubmit.addEventListener('click', function(){
+        const url='http://127.0.0.1:5000/users/search';
+        user=document.getElementById('userSearch').value;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({username: user})
+        })
+        .then(response => {
+            if(!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            if(data.success) {
+                localStorage.setItem('searchUserName', user);
+                localStorage.setItem('searchUserID', data.userID);
+                window.location.href='../../searchedProfile/searchProfileIndex.html';
+            } else {
+                console.log('User not found:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+
     console.log(searchedUserId);
     console.log(localStorage.getItem('searchUserName'), localStorage.getItem('searchUserID'));
 
@@ -108,6 +138,38 @@ document.addEventListener('DOMContentLoaded', function() {
             const friend=document.createElement('a');
             friend.href='../../searchedProfile/searchProfileIndex.html'; //link to a friends page, iterate thru database
             friend.textContent=friends[i]; //switch to the friends user name
+
+            friend.addEventListener('click', function(event){
+                event.preventDefault();
+                const user=this.textContent;
+                const url=`http://127.0.0.1:5000/data/${user}`;
+                console.log(url);
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({username:user})
+                })
+                .then(response=>{
+                    if(!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data=>{
+                    if(data.success){
+                        localStorage.setItem('searchUserName', user);
+                        localStorage.setItem('searchUserID', data.userID);
+                        window.location.href='../../searchedProfile/searchProfileIndex.html';
+                    } else{
+                        console.log('User not found: ', data.error);
+                    }
+                })
+                .catch(error=>{
+                    console.error('Error: ', error);
+                })
+            })
             friendsListContent.appendChild(friend);
         }
     };
@@ -118,6 +180,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('addFriend').addEventListener('click', function(){
+        const signedIn=localStorage.getItem('signedInBoolean');
+
+        if (signedIn==='false') {
+            console.log('User is not signed in. Cannot add a friend.');
+            return;
+        }
+
         const addButton=document.getElementById('addFriend');
         const removeButton=document.getElementById('removeFriend');
         addButton.classList.add('hide');
