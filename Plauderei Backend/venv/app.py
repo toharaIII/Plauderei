@@ -28,7 +28,7 @@ fetchs all columns for a given user except for passowrd for security
 def getUser(userID):
     conn=getDBConnection()
     cursor=conn.cursor(dictionary=True) #dictionary=True means that the output from mysql is returned as a dictionary instead of a tuple
-    cursor.execute('SELECT username, name, bio, friendsList, pinnedAnswers, dateJoined, badges FROM users WHERE userID=%s', (userID,))
+    cursor.execute('SELECT username, name, bio, friendsList, pinnedAnswers, dateJoined, badges, answerTotal, responsesRemaining, dailyAnswer FROM users WHERE userID=%s', (userID,))
     user=cursor.fetchone()
     conn.close()
 
