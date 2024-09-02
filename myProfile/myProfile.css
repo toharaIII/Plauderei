@@ -63,6 +63,13 @@ body {
     border: none;
     border-radius: 5px;
 }
+#searchSubmit {
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: rgb(248, 239, 226);
+    color: rgb(56, 56, 56);
+}
 
 #profileInfo{
     display: block;

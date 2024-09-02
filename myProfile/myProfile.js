@@ -1,31 +1,67 @@
 document.addEventListener('DOMContentLoaded', function() {
-    let userAnswers=1;
+    let userAnswers=0;
     let userResponses=0;
 
-    let badgesCnt=35;
-    let userName="Trey.Ohara";
-    let name=localStorage.getItem('name')||"Trey O'Hara";
-    let dateJoined="August 2024";
-    let userEntry=localStorage.getItem('userEntry')||"hey, im the dev!";
-    let friendCnt=35;
+    //let userId=localStorage.getItem('userID');
+    let userId=1;
+    let badgesCnt=0;
+    let userName="";
+    let name="";
+    let dateJoined="";
+    let userEntry="";
+    let friendCnt=0;
+    let friends=[];
+    let pinnedAnswers=[];
+    let submittedQuestionsArray=[];
 
-    let submittedQuestionsArray=["Is determining when ai has reached agi a civil rights problem; as opposed to an engineering problem?",
-        "Is there a blanket statement you can about when it becomes worth it to break laws?",
-        "Is the inspiration for all non-hedonistic things legacy?"];
+    //need populate for username, name, join date, bio, friends list, submitted questions, pinned answers, answer total, responses remaining and badges
+    //need to patch call for settings shit to change name and bio, and for submit questions
+    //need to add the search shit
 
-    let pinnedOneString='';
-    let pinnedTwoString='';
-    let pinnedThreeString='';
+    function updateUI(){
+        document.getElementById("userName").textContent=userName;
+        document.getElementById("name").textContent=name;
+        document.getElementById("dateJoined").textContent=dateJoined;
+        document.getElementById("userEntry").textContent=userEntry;
+        document.getElementById("answerCnt").textContent=userAnswers;
+        document.getElementById("responseCnt").textContent=userResponses;
+    }
 
-    //providing current answers and responses for given user, no need to update since cant reduce or add on this page
-    document.getElementById("answerCnt").textContent=userAnswers;
-    document.getElementById("responseCnt").textContent=userResponses;
+    function populatePage(){
+        const url=`http://127.0.0.1:5000/data/${userId}`;
+        console.log(url);
 
-    document.getElementById("userName").textContent=userName;
-    document.getElementById("name").textContent=name;
-    document.getElementById("dateJoined").textContent=dateJoined;
-    document.getElementById("userEntry").textContent=userEntry;
-    
+        fetch(url, {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json'},
+        })
+        .then(response=>{
+            if(!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data=>{
+            if(data.dateJoined) console.log('booya :P')
+            else console.log(data.error || 'This User Doesnt seem to exist? Thats weird :|');
+            userName=data.username;
+            name=data.name || 'No Name';
+            dateJoined=data.dateJoined;
+            userEntry=data.bio || 'No Bio';
+            badgesCnt=data.badges;
+            friends=Array.isArray(data.friendsList) ? data.friendsList : (data.friendsList ? JSON.parse(data.friendsList) : []);
+            friendCnt=friends.length;
+            pinnedAnswers=Array.isArray(data.pinnedAnswers) ? data.pinnedAnswers : (data.pinnedAnswers ? JSON.parse(data.pinnedAnswers) : []);
+            submittedQuestionsArray = Array.isArray(data.submittedQuestions) ? data.submittedQuestions : (data.submittedQuestions ? JSON.parse(data.submittedQuestions) : []);
+            updateUI();
+            populateBadges(badgesCnt);
+            populateFriendsList(friendCnt);
+            populateSubmittedQuestions(submittedQuestionsArray);
+        })
+        .catch((error)=>{
+            console.error('Error:', error);
+            alert('An error occured while trying to find this user. Please try again later.');
+        });
+    }
+    populatePage();
 
     document.getElementById('menuIcon').addEventListener('click', function(){
         this.classList.toggle('change');
@@ -37,18 +73,87 @@ document.addEventListener('DOMContentLoaded', function() {
         menuElement.classList.toggle('show');
     });
 
+    searchSubmit.addEventListener('click', function(){
+        const url='http://127.0.0.1:5000/users/search';
+        user=document.getElementById('userSearch').value;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({username: user})
+        })
+        .then(response => {
+            if(!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            if(data.success) {
+                localStorage.setItem('searchUserName', user);
+                localStorage.setItem('searchUserID', data.userID);
+                window.location.href='../../searchedProfile/searchProfileIndex.html';
+            } else {
+                console.log('User not found:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+
     document.getElementById('changeName').addEventListener('keypress', function(event) {
         if (event.key==='Enter') {
-            name=event.target.value;
-            localStorage.setItem('name', name);
-            location.reload();
+            newName=event.target.value;
+            const url=`http://127.0.0.1:5000/users/${userId}`;
+            const data={name: newName};
+
+            fetch(url, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            })
+            .then(response=>{
+                if(!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data=>{
+                if(data.message) alert('booya :P')
+                else alert(data.error || 'cant add to the list?');
+                location.reload();
+            })
+            .catch((error)=>{
+                console.error('Error:', error);
+                alert('An error occured while trying to submit this Name. Please try again later.');
+            });
         }
     });
+
     document.getElementById('changeBio').addEventListener('keypress', function(event) {
         if (event.key==='Enter') {
             userEntry=event.target.value;
-            localStorage.setItem('userEntry', userEntry);
-            location.reload();
+            const url=`http://127.0.0.1:5000/users/${userId}`;
+            const data={bio: userEntry};
+
+            fetch(url, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            })
+            .then(response=>{
+                if(!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data=>{
+                if(data.message) alert('booya :P')
+                else alert(data.error || 'cant add to the list?');
+                location.reload();
+            })
+            .catch((error)=>{
+                console.error('Error:', error);
+                alert('An error occured while trying to submit this Bio. Please try again later.');
+            });
         }
     });
 
@@ -94,8 +199,40 @@ document.addEventListener('DOMContentLoaded', function() {
         //this actually populates the drop down
         for(let i=0; i<friendsCnt; i++){
             const friend=document.createElement('a');
-            friend.href='#'; //link to a friends page, iterate thru database
-            friend.textContent=`friend ${i+1}`; //switch to the friends user name
+            friend.href='../../searchedProfile/searchProfileIndex.html'; //link to a friends page, iterate thru database
+            friend.textContent=friends[i]; //switch to the friends user name
+
+            friend.addEventListener('click', function(event){
+                event.preventDefault();
+                const user=this.textContent;
+                const url=`http://127.0.0.1:5000/data/${user}`;
+                console.log(url);
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({username:user})
+                })
+                .then(response=>{
+                    if(!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data=>{
+                    if(data.success){
+                        localStorage.setItem('searchUserName', user);
+                        localStorage.setItem('searchUserID', data.userID);
+                        window.location.href='../../searchedProfile/searchProfileIndex.html';
+                    } else{
+                        console.log('User not found: ', data.error);
+                    }
+                })
+                .catch(error=>{
+                    console.error('Error: ', error);
+                })
+            })
             friendsListContent.appendChild(friend);
         }
     };
@@ -108,8 +245,30 @@ document.addEventListener('DOMContentLoaded', function() {
     enterQuestion=document.getElementById('submitQuestion');
     function submitQuestionFromTextarea(submittedQuestionsArray){
         questionTextarea=document.getElementById('userQuestion');
+        question=questionTextarea.value
         submittedQuestionsArray.push(questionTextarea.value);
         populateSubmittedQuestions(submittedQuestionsArray);
+
+        const url=`http://127.0.0.1:5000/users/${userId}`;
+        const data={submittedQuestions: [question]};
+
+        fetch(url, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+        .then(response=>{
+            if(!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data=>{
+            if(data.message) alert('booya :P')
+            else alert(data.error || 'cant add to the list?');
+        })
+        .catch((error)=>{
+            console.error('Error:', error);
+            alert('An error occured while trying to submit this question. Please try again later.');
+        });
         questionTextarea.value='';
     };
     enterQuestion.addEventListener('click', function(){
@@ -120,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const submittedQuestionsContent=document.getElementById('submittedQuestionsContent');
         submittedQuestionsContent.innerHTML='';
 
-        for(let i=submittedQuestionsArray.length; i>=0; i--){
+        for(let i=submittedQuestionsArray.length-1; i>=0; i--){
             const question=document.createElement('div');
             question.textContent=submittedQuestionsArray[i];
             submittedQuestionsContent.appendChild(question);

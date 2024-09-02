@@ -28,14 +28,13 @@ fetchs all columns for a given user except for passowrd for security
 def getUser(userID):
     conn=getDBConnection()
     cursor=conn.cursor(dictionary=True) #dictionary=True means that the output from mysql is returned as a dictionary instead of a tuple
-    cursor.execute('SELECT username, name, bio, friendsList, pinnedAnswers, dateJoined, badges, answerTotal, responsesRemaining, dailyAnswer FROM users WHERE userID=%s', (userID,))
+    cursor.execute('SELECT username, name, bio, friendsList, pinnedAnswers, dateJoined, badges, answerTotal, responsesRemaining, dailyAnswer, submittedQuestions FROM users WHERE userID=%s', (userID,))
     user=cursor.fetchone()
     conn.close()
 
-    date_joined=datetime.strptime(str(user['dateJoined']), '%Y-%m-%d %H:%M:%S')
-    user['dateJoined']=date_joined.strftime('%B %Y')
-
     if user:
+        date_joined=datetime.strptime(str(user['dateJoined']), '%Y-%m-%d %H:%M:%S')
+        user['dateJoined']=date_joined.strftime('%B %Y')
         return jsonify(user)
     return jsonify({"error": "User not found"}), 404
 
@@ -142,8 +141,8 @@ update function that lets the data json contain as few or as many columns to be 
 @app.route('/users/<int:userID>', methods=['PATCH'])
 def updateUserColumns(userID):
     data=request.json
-    allowedColumns=['name', 'password', 'bio', 'friendsList', 'questions', 'pinnedAnswers', 'dateJoined']
-    jsonColumns=['friendsList', 'questions', 'pinnedAnswers'] #columns with json datatype, need to handle separately
+    allowedColumns=['name', 'password', 'bio', 'friendsList', 'submittedQuestions', 'pinnedAnswers', 'dateJoined', 'dailyAnswer', 'todaysAnswer', 'answerTotal', 'responsesRemaining', 'badges']
+    jsonColumns=['friendsList', 'submittedQuestions', 'pinnedAnswers'] #columns with json datatype, need to handle separately
     updateColumns=[col for col in data.keys() if col in allowedColumns]
 
     if not updateColumns:

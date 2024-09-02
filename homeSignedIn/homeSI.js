@@ -2,8 +2,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let dailyAnswer=false;
     const signedIn=true;
     localStorage.getItem('signedInBoolean', signedIn);
-    //userId=localStorage.getItem('userID'); //for actual
-    let userId=15;//for page testing
+    userId=localStorage.getItem('userID'); //for actual
+    //let userId=15;//for page testing
 
     let questionString="Where does politics end and war begin?";
     let userAnswers=0;
