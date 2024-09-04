@@ -1,6 +1,9 @@
+import { profileMenu, search, populatePage, populateBadges, populateFriendsList } from "../common.js";
+
 document.addEventListener('DOMContentLoaded', function() {
     
-    let searchedUserId=localStorage.getItem('searchUserID');
+    //let searchedUserId=localStorage.getItem('searchUserID');
+    let searchedUserId=15;
     let badgesCnt=0;
     let searchedUser=localStorage.getItem('searchUserName');
     let name="";
@@ -10,35 +13,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let friends=[];
     let pinnedAnswers=[];
 
-    searchSubmit.addEventListener('click', function(){
-        const url='http://127.0.0.1:5000/users/search';
-        user=document.getElementById('userSearch').value;
-
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({username: user})
-        })
-        .then(response => {
-            if(!response.ok) throw new Error('Network response was not ok');
-            return response.json();
-        })
-        .then(data => {
-            if(data.success) {
-                localStorage.setItem('searchUserName', user);
-                localStorage.setItem('searchUserID', data.userID);
-                window.location.href='../../searchedProfile/searchProfileIndex.html';
-            } else {
-                console.log('User not found:', data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    });
+    const searchSubmit=document.getElementById('searchSubmit');
+    searchSubmit.addEventListener('click', search);
 
     console.log(searchedUserId);
     console.log(localStorage.getItem('searchUserName'), localStorage.getItem('searchUserID'));
@@ -50,130 +26,26 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById("userEntry").textContent=userBio;
     }
 
-    function populatePage(){
-        const url=`http://127.0.0.1:5000/data/${searchedUserId}`;
-        console.log(url);
+    populatePage(searchedUserId).then(data => {
+        name=data.name || 'No Name';
+        dateJoined=data.dateJoined;
+        userBio=data.bio || 'No Bio';
+        badgesCnt=data.badges;
+        friends=Array.isArray(data.friendsList) ? data.friendsList : (data.friendsList ? JSON.parse(data.friendsList) : []);
+        friendCnt=friends.length;
+        pinnedAnswers=Array.isArray(data.pinnedAnswers) ? data.pinnedAnswers : (data.pinnedAnswers ? JSON.parse(data.pinnedAnswers) : []);
+        updateUI();
+        populateBadges(badgesCnt);
+        populateFriendsList(friendCnt);
+    })
+    
+    const menuIcon=document.getElementById('menuIcon');
+    menuIcon.addEventListener('click', profileMenu);
 
-        fetch(url, {
-            method: 'GET',
-            headers: {'Content-Type': 'application/json'},
-        })
-        .then(response=>{
-            if(!response.ok) throw new Error('Network response was not ok');
-            return response.json();
-        })
-        .then(data=>{
-            if(data.dateJoined) console.log('booya :P')
-            else console.log(data.error || 'This User Doesnt seem to exist? Thats weird :|');
-            name=data.name || 'No Name';
-            dateJoined=data.dateJoined;
-            userBio=data.bio || 'No Bio';
-            badgesCnt=data.badges;
-            friends=Array.isArray(data.friendsList) ? data.friendsList : JSON.parse(data.friendsList);
-            friendCnt=friends.length;
-            pinnedAnswers=Array.isArray(data.pinnedAnswers) ? data.pinnedAnswers : [];
-            updateUI();
-            populateBadges(badgesCnt);
-            populateFriendsList(friendCnt);
-        })
-        .catch((error)=>{
-            console.error('Error:', error);
-            alert('An error occured while trying to find this user. Please try again later.');
-        });
-    }
-    populatePage();
-    //need to get all the shit so not username but osmething is wrong with that
-    //but need name, dateJoined, number of badges, bio, pinned answers, friends list
-    //need to build actual pinned answers and responses functionality as well
-    //need to see if signed in user is friends with searched user and if so hide add friend button and show remove friend button
-    //still need to test add and remvoe friend, need to find way to see live output of friendslist on mysql server
-    //providing current answers and responses for given user, no need to update since cant reduce or add on this page
-
-    document.getElementById('menuIcon').addEventListener('click', function(){
-        this.classList.toggle('change');
-        const menuElement=document.getElementById('menu');
-        const menuQuestionLine=document.querySelector('.menuQuestionLine');
-        const questionDiv=document.querySelector('.question');
-
-        //to toggle menu visibility
-        menuElement.classList.toggle('show');
-    });
-
-    function determineMaxBadges(){
-        const profileInfoWidth=document.getElementById('profileInfo').offsetWidth;
-        const maxDisplayedBadges=Math.floor((profileInfoWidth-30)/30)-1
-        return maxDisplayedBadges;
-    };
-
-    function populateBadges(badgesCnt){
-        maxDisplayedBadges=determineMaxBadges(); //need to make this dynamic
-
-        const badgelocation=document.getElementById('badges');
-        badgelocation.innerHTML='';
-
-        badgesPrinted=badgesCnt<maxDisplayedBadges ? badgesCnt : maxDisplayedBadges; //determining number of badges to display
-        for(let i=0; i<badgesPrinted; i++){ //adding badges to top of profile
-            const badge=document.createElement('img');
-            badge.src='../../badge.png';
-            badgelocation.appendChild(badge);
-        }
-        if(badgesCnt>maxDisplayedBadges){ //print an integer if the user has more then 23 badges since thats how many can
-            badgeRemainder=badgesCnt-maxDisplayedBadges;
-            const additionalBadges=document.createElement('span');
-            additionalBadges.textContent=`+${badgeRemainder}`;
-            badgelocation.appendChild(additionalBadges);
-        }
-    }
-    populateBadges(badgesCnt);
     window.addEventListener('resize', ()=> {
         populateBadges(badgesCnt);
     });
 
-    function populateFriendsList(friendsCnt){
-        const friendsListContent=document.getElementById('friendsListContent');
-        friendsListContent.innerHTML=''; //this wipes the existing drop down content
-
-        //this actually populates the drop down
-        for(let i=0; i<friendsCnt; i++){
-            const friend=document.createElement('a');
-            friend.href='../../searchedProfile/searchProfileIndex.html'; //link to a friends page, iterate thru database
-            friend.textContent=friends[i]; //switch to the friends user name
-
-            friend.addEventListener('click', function(event){
-                event.preventDefault();
-                const user=this.textContent;
-                const url=`http://127.0.0.1:5000/data/${user}`;
-                console.log(url);
-
-                fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({username:user})
-                })
-                .then(response=>{
-                    if(!response.ok) throw new Error('Network response was not ok');
-                    return response.json();
-                })
-                .then(data=>{
-                    if(data.success){
-                        localStorage.setItem('searchUserName', user);
-                        localStorage.setItem('searchUserID', data.userID);
-                        window.location.href='../../searchedProfile/searchProfileIndex.html';
-                    } else{
-                        console.log('User not found: ', data.error);
-                    }
-                })
-                .catch(error=>{
-                    console.error('Error: ', error);
-                })
-            })
-            friendsListContent.appendChild(friend);
-        }
-    };
-    populateFriendsList(friendCnt);
     document.querySelector('.showFriendsList').addEventListener('click', function(){
         const friendsListContent=document.getElementById('friendsListContent');
         friendsListContent.style.display=friendsListContent.style.display==='flex'?'none':'flex'; //cool different way of doing this, seems better then including a .show/.hide, switch all to this

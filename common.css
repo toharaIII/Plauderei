@@ -1,0 +1,79 @@
+body {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    text-align: center;
+    background-color: rgb(247, 232, 209);
+    color: rgb(56, 56, 56);
+}
+
+.titleLine {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    position: relative;
+}
+
+.title {
+    padding-top: 10px;
+    font-size: 72px;
+}
+
+.menu-icon {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    display: inline-block;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.bar1, .bar2, .bar3 {
+    width: 35px;
+    height: 5px;
+    background-color: rgb(56, 56, 56);
+    margin: 6px;
+    transition: 0.4s;
+}
+
+/*these turn the menu icon bars into the X icon after its clicked*/
+.change .bar1 {transform: rotate(-45deg) translate(-9px, 6px);} 
+.change .bar2 {opacity: 0;}
+.change .bar3 {transform: rotate(45deg) translate(-8px, -8px);}
+
+.menuQuestionLine {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    position: relative;
+}
+
+/*hide menu by defulat until the .show class is added to it*/
+#menu {display: none;}
+/*need to add some tyleize to this one*/
+#menu.show {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: block;
+    z-index: 1000;
+    background-color: rgb(248, 239, 226);
+    border: 1px solid rgb(248, 239, 226);
+    border-radius: 5px;
+}
+
+.menu-open .menuQuestionLine {justify-content: flex-start;}
+.menu-open .question {margin-left: 175px;}
+
+#searchSubmit {
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: rgb(248, 239, 226);
+    color: rgb(56, 56, 56);
+}
+
+.devCredit {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    font-size: 12px;
+}

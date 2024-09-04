@@ -1,74 +1,32 @@
-//ensures all functions inside the DOM will run once page is fully loaded
+import { homeMenu, removeShow, search } from "../common.js";
+
 document.addEventListener('DOMContentLoaded', function() {
     let signedInBoolean=false;
     localStorage.setItem('signedInBoolean', signedInBoolean); //will prevent people that arent signed in from doing signed in shit
-    //let questionString="really big string like om gholy shit big string like zoo wee mama thats got to be at least 2 lines"
-    let questionString="Where does politics end and war begin?";
-    const questionDiv=document.querySelector('.question');
-    const popup=document.getElementById('responsePopUp');
-    const signIn=document.getElementById('signIn');
-    const signInPopUp=document.getElementById('signInPopUp')
 
-    function updateQuestion(newQuestion){
+    let questionString="Where does politics end and war begin?";
+
+    function updateQuestion(newQuestion){ //this we will probably want ot move to common once this gets bigger with new table shit
         const questionDiv=document.getElementsByClassName('question')[0];
         questionDiv.textContent=newQuestion
     }
     updateQuestion(questionString);
 
-    //changes the 3 bar menu to the X and adds show to the menu css id 
-    document.getElementById('menuIcon').addEventListener('click', function(){
-        //setting up variables to change the question margins based on the size of the question string entered
-        const menuElement=document.getElementById('menu');
-        const menuQuestionLine=document.querySelector('.menuQuestionLine');
-        const questionDiv=document.querySelector('.question');
+    const menuIcon=document.getElementById('menuIcon')
+    menuIcon.addEventListener('click', homeMenu);
 
-        //to turn on menu visibility once clicked
-        menuElement.classList.toggle('show');
-        this.classList.toggle('change');
+    const searchSubmit=document.getElementById('searchSubmit');
+    searchSubmit.addEventListener('click', search);
 
-        //determine if the question div is wide enough to need adjustment when menu is present to prevent clipping
-        if(menuElement.classList.contains('show')){
-            const isWide=questionDiv.offsetWidth>(menuQuestionLine.offsetWidth-100)
-            if(isWide) menuQuestionLine.classList.add('menu-open');
-        } else menuQuestionLine.classList.remove('menu-open'); //removes adjustment for questionDiv if .show is not present
-    });
-
-    searchSubmit.addEventListener('click', function(){
-        const url='http://127.0.0.1:5000/users/search';
-        user=document.getElementById('userSearch').value;
-
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({username: user})
-        })
-        .then(response => {
-            if(!response.ok) throw new Error('Network response was not ok');
-            return response.json();
-        })
-        .then(data => {
-            if(data.success) {
-                localStorage.setItem('searchUserName', user);
-                localStorage.setItem('searchUserID', data.userID);
-                window.location.href='../../searchedProfile/searchProfileIndex.html';
-            } else {
-                console.log('User not found:', data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    });
-
+    const questionDiv=document.querySelector('.question');
+    const signIn=document.getElementById('signIn');
     questionDiv.addEventListener('click', function(event){
         event.stopPropagation();
         popup.classList.add('show-popup');
         signIn.classList.add('move')
     });
 
+    const popup=document.getElementById('responsePopUp');
     document.addEventListener('click', function(event){
         if(!popup.contains(event.target) && event.target!==questionDiv){
             popup.classList.remove('show-popup');
@@ -76,6 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    const signInPopUp=document.getElementById('signInPopUp');
     signIn.addEventListener('click', function(event){
         event.stopPropagation();
         signInPopUp.classList.add('show');
@@ -97,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return response.json();
         })
         .then(data=>{
-            if(data.success){
+            if(data.message){
                 localStorage.setItem('userID', data.userID);
                 window.location.href='../../homeSignedIn/homeSIIndex.html';
             }else alert(data.error || 'Invalid username or password. Please try again.');
@@ -108,11 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    document.addEventListener('click', function(event){
-        if(!signInPopUp.contains(event.target) && event.target!==signInPopUp){
-            signInPopUp.classList.remove('show');
-        }
-    });
+    document.addEventListener('click', (event) => removeShow(event, signInPopUp));
 
     createAccount.addEventListener('click', function(event){
         event.stopPropagation();
@@ -138,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return response.json();
         })
         .then(data=>{
-            if(data.success) window.location.href = '../../homeSignedIn/homeSIIndex.html';
+            if(data.message) window.location.href = '../../homeSignedIn/homeSIIndex.html';
             else alert(data.error || 'Failed to create account. Please try again.');
         })
         .catch((error)=>{
@@ -147,9 +102,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    document.addEventListener('click', function(event){
-        if(!createAccountPopUp.contains(event.target) && event.target!==createAccountPopUp){
-            createAccountPopUp.classList.remove('show');
-        }
-    });
+    document.addEventListener('click', (event) => removeShow(event, createAccountPopUp));
 });
