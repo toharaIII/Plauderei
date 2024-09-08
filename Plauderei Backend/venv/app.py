@@ -3,6 +3,7 @@ from flask_cors import CORS
 import mysql.connector
 import json
 from datetime import datetime
+import schedule
 
 app=Flask(__name__)
 CORS(app) #might want to see if this is a security issue once we get to production
@@ -238,5 +239,64 @@ def deleteUser(userID):
         conn.close()
 
 
+#below is for the submissions tables
+"""
+this function allows a user to submit either an answer or response to another answer
+"""
+@app.route('/submissions/<int:userID>', methods=['POST'])
+def submitAnswerOrResponse(userID):
+    data=request.json
+    allowedColumns=['submission','parentID']
+    updateColumns=[col for col in data.keys() if col in allowedColumns]
+
+    if not updateColumns:
+        return jsonify({"error": "No valid columns to update"}), 400
+    
+    submission=data['submission']
+    parentID=data['parentID']
+
+    conn=getDBConnection()
+    cursor=conn.cursor()
+    query="""
+        INSERT INTO submissions (userID, submission, parentID)
+        VALUES (%s, %s, %s)
+    """
+
+    try:
+        cursor.execute(query, (userID, submission, parentID))
+        conn.commit()
+        return jsonify({"message": "submission successfully added"}), 201
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+"""
+this function will get and return the ANSWER of a specific user, assuming one exists, if not it also responds telling you that
+"""
+@app.route('/submissions/<int:userID>', methods=['GET'])
+def getSpecificAnswer(userID):
+    conn=getDBConnection()
+    cursor=conn.cursor(dictionary=True) 
+
+    query="""SELECT * FROM submissions WHERE userID = %s AND parentID = 1 LIMIT 1"""
+
+    try:
+        cursor.execute(query, (userID,))
+        answer=cursor.fetchone()
+        if answer:
+            return jsonify(answer), 200
+        else:
+            return jsonify({"error": "no answer found for that userID"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+
 if __name__=='__main__':
-    app.run(debug=True)
+     app.run(debug=True)
