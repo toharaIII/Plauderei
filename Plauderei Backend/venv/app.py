@@ -3,7 +3,7 @@ from flask_cors import CORS
 import mysql.connector
 import json
 from datetime import datetime
-import schedule
+from apscheduler.schedulers.background import BackgroundScheduler
 
 app=Flask(__name__)
 CORS(app) #might want to see if this is a security issue once we get to production
@@ -238,13 +238,51 @@ def deleteUser(userID):
     finally:
         conn.close()
 
+@app.route('/admin', methods=['GET'])
+def getAllSubmittedQuestions():
+    conn=getDBConnection()
+    cursor=conn.cursor()
+
+    query="""SELECT userID, submittedQuestions FROM users WHERE JSON_LENGTH(submittedQuestions) > 0;"""
+
+    try:
+        cursor.execute(query)
+        answer=cursor.fetchall()
+        if answer:
+            return jsonify(answer), 200
+        else:
+            return jsonify({"error": "unable to collect questions"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
 
 #below is for the submissions tables
+def resetSubmissions():
+    if datetime.now().strftime('%H:%M') == '00:00':
+        conn=getDBConnection()
+        cursor=conn.cursor()
+
+        cursor.execute("TRUNCATE TABLE submissions")
+        cursor.execute("INSERT INTO submissions (userID, submissions, parentID) VALUES (1, '', NULL);")
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        print("submissions table reset!")
+
+def runScheduler():
+    scheduler=BackgroundScheduler()
+    scheduler.add_job(func=resetSubmissions, trigger='cron', hour=0, minute=0)
+    scheduler.start()
+
+
 """
 this function allows a user to submit either an answer or response to another answer
 """
 @app.route('/submissions/<int:userID>', methods=['POST'])
-def submitAnswerOrResponse(userID):
+def submitAnswerorResponse(userID):
     data=request.json
     allowedColumns=['submission','parentID']
     updateColumns=[col for col in data.keys() if col in allowedColumns]
@@ -296,7 +334,30 @@ def getSpecificAnswer(userID):
         cursor.close()
         conn.close()
 
+"""
+this function gets 10 random answers, this is built for the home page for both signed in and not signed in
+for when someone clicks on the question
+"""
+@app.route('/submissions', methods=['GET'])
+def getTenAnswers():
+    conn=getDBConnection()
+    cursor=conn.cursor(dictionary=True) 
 
+    query="""SELECT * FROM submissions WHERE parentID = 1 ORDER BY RAND() LIMIT 10;"""
+
+    try:
+        cursor.execute(query)
+        answer=cursor.fetchall()
+        if answer:
+            return jsonify(answer), 200
+        else:
+            return jsonify({"error": "not enough questions submitted"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
 
 if __name__=='__main__':
+     runScheduler()
      app.run(debug=True)
