@@ -341,7 +341,7 @@ for when someone clicks on the question
 @app.route('/submissions', methods=['GET'])
 def getTenAnswers():
     conn=getDBConnection()
-    cursor=conn.cursor(dictionary=True) 
+    cursor=conn.cursor() 
 
     query="""SELECT * FROM submissions WHERE parentID = 1 ORDER BY RAND() LIMIT 10;"""
 

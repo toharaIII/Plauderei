@@ -47,7 +47,7 @@ export function homeMenu(event){
     } else menuQuestionLine.classList.remove('menu-open');
 }
 
-export function profileMenu(evnet){
+export function profileMenu(event){
     this.classList.toggle('change');
     const menuElement=document.getElementById('menu');
     const menuQuestionLine=document.querySelector('.menuQuestionLine');

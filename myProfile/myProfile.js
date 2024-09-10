@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let userAnswers=0;
     let userResponses=0;
 
-    //let userId=localStorage.getItem('userID');
-    let userId=1;
+    //let userID=localStorage.getItem('userID');
+    let userID=1;
     let badgesCnt=0;
     let userName="";
     let name="";
@@ -25,22 +25,23 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById("responseCnt").textContent=userResponses;
     }
 
-    populatePage(userId).then(data => {
+    populatePage(userID).then(data => {
         userName=data.username;
-            name=data.name || 'No Name';
-            dateJoined=data.dateJoined;
-            userEntry=data.bio || 'No Bio';
-            badgesCnt=data.badges;
-            userAnswers=data.answerTotal;
-            userResponses=data.responsesRemaining;
-            friends=Array.isArray(data.friendsList) ? data.friendsList : (data.friendsList ? JSON.parse(data.friendsList) : []);
-            friendCnt=friends.length;
-            pinnedAnswers=Array.isArray(data.pinnedAnswers) ? data.pinnedAnswers : (data.pinnedAnswers ? JSON.parse(data.pinnedAnswers) : []);
-            submittedQuestionsArray = Array.isArray(data.submittedQuestions) ? data.submittedQuestions : (data.submittedQuestions ? JSON.parse(data.submittedQuestions) : []);
-            updateUI();
-            populateBadges(badgesCnt);
-            populateFriendsList(friendCnt, friends);
-            populateSubmittedQuestions(submittedQuestionsArray);
+        name=data.name || 'No Name';
+        dateJoined=data.dateJoined;
+        userEntry=data.bio || 'No Bio';
+        badgesCnt=data.badges;
+        userAnswers=data.answerTotal;
+        userResponses=data.responsesRemaining;
+        friends=Array.isArray(data.friendsList) ? data.friendsList : (data.friendsList ? JSON.parse(data.friendsList) : []);
+        friendCnt=friends.length;
+        pinnedAnswers=Array.isArray(data.pinnedAnswers) ? data.pinnedAnswers : (data.pinnedAnswers ? JSON.parse(data.pinnedAnswers) : []);
+        submittedQuestionsArray = Array.isArray(data.submittedQuestions) ? data.submittedQuestions : (data.submittedQuestions ? JSON.parse(data.submittedQuestions) : []);
+        updateUI();
+        populateBadges(badgesCnt);
+        populateFriendsList(friendCnt, friends);
+        populateSubmittedQuestions(submittedQuestionsArray);
+        getTodaysResponse(userID)
     })
 
     const menuIcon=document.getElementById('menuIcon');
@@ -52,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('changeName').addEventListener('keypress', function(event) {
         if (event.key==='Enter') {
             newName=event.target.value;
-            const url=`http://127.0.0.1:5000/users/${userId}`;
+            const url=`http://127.0.0.1:5000/users/${userID}`;
             const data={name: newName};
 
             fetch(url, {
@@ -79,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('changeBio').addEventListener('keypress', function(event) {
         if (event.key==='Enter') {
             userEntry=event.target.value;
-            const url=`http://127.0.0.1:5000/users/${userId}`;
+            const url=`http://127.0.0.1:5000/users/${userID}`;
             const data={bio: userEntry};
 
             fetch(url, {
@@ -124,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
         submittedQuestionsArray.push(questionTextarea.value);
         populateSubmittedQuestions(submittedQuestionsArray);
 
-        const url=`http://127.0.0.1:5000/users/${userId}`;
+        const url=`http://127.0.0.1:5000/users/${userID}`;
         const data={submittedQuestions: [question]};
 
         fetch(url, {
@@ -165,6 +166,34 @@ document.addEventListener('DOMContentLoaded', function() {
         const submittedQuestionsContent=document.getElementById('submittedQuestionsContent');
         submittedQuestionsContent.style.display=submittedQuestionsContent.style.display==='flex'?'none':'flex';
     });
+
+    function getTodaysResponse(userID){
+        const url=`http://127.0.0.1:5000/submissions/${userID}`; // Replace with the actual URL of your Flask API
+
+        fetch(url, {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json(); // Parse the response as JSON
+        })
+        .then(data => {
+            if (data.error) console.error(data.error)
+            else {
+                console.log('Answer retrieved:', data);
+                const userAnswer=document.createElement('div');
+                userAnswer.className='todaysAnswer';
+                userAnswer.textContent=data.submission;
+                
+                const questionsDiv = document.getElementById('questions');
+                questionsDiv.insertAdjacentElement('afterend', answerDiv);
+            }
+        })
+        .catch(error => {
+            console.error('There has been a problem with your fetch operation:', error);
+        });
+    };
 
     //call with the second variable as a string
     function updatePinned(pinnedString, pinNum){
