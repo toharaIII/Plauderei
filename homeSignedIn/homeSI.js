@@ -1,9 +1,9 @@
-import { homeMenu, search, populatePage} from "../common.js";
+import { homeMenu, search, populatePage, getPopUpAnswers} from "../common.js";
 
 document.addEventListener('DOMContentLoaded', function() {
     let dailyAnswer=false;
-    const signedIn=true;
-    localStorage.getItem('signedInBoolean', signedIn);
+    let signedInBoolean=true;
+    localStorage.getItem('signedInBoolean', signedInBoolean);
     //let userId=localStorage.getItem('userID'); //for actual
     let userId=15;//for page testing
     let userAnswers=0;
@@ -85,6 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
     questionDiv.addEventListener('click', function(event){
         event.stopPropagation();
         popup.classList.add('show-popup');
+        getPopUpAnswers(userId, signedInBoolean);
         if(dailyAnswer==true) alreadyAnswered.classList.remove('show');
     });
 

@@ -1,4 +1,4 @@
-import { profileMenu, search, populatePage, populateBadges, populateFriendsList } from "../common.js";
+import { profileMenu, search, populatePage, populateBadges, populateFriendsList, getTodaysAnswer } from "../common.js";
 
 document.addEventListener('DOMContentLoaded', function() {
     
@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateUI();
         populateBadges(badgesCnt);
         populateFriendsList(friendCnt);
+        getTodaysAnswer(searchedUserId);
     })
     
     const menuIcon=document.getElementById('menuIcon');

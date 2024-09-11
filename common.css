@@ -71,6 +71,36 @@ body {
     color: rgb(56, 56, 56);
 }
 
+.todaysAnswer {
+    display: flex;
+    flex-direction: row; 
+    margin: 20px 40px;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: rgb(248, 239, 226);
+    color: rgb(56, 56, 56);
+    align-items: flex-start;
+}
+.answerText {
+    flex-grow: 1;
+    margin: 15px;
+    align-self: stretch;
+    background-color: rgb(248, 239, 226); 
+    display: block;
+    text-align: left;
+    justify-content: flex-start;
+}
+.replyButton {
+    margin: 10px 5px;
+    padding: 10px 20px;
+    background-color: rgb(247, 247, 247);
+    color: rgb(56, 56, 56);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
 .devCredit {
     position: fixed;
     bottom: 10px;

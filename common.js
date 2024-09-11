@@ -149,3 +149,161 @@ export function populateFriendsList(friendsCnt, friends){
         friendsListContent.appendChild(friend);
     }
 }
+
+function populatePopUp(answers, userID, signedInBoolean){
+    const popup=document.getElementById('popupContent');
+    popup.innerHTML='<p>responses</p>';
+
+    answers.forEach(answer => {
+        const {submission, parentID}=answer;
+        const answerItem=document.createElement('div');
+        answerItem.textContent=submission;
+        answerItem.classList.add('answer');
+        popup.appendChild(answerItem);
+
+        if(signedInBoolean){
+            answerItem.addEventListener('click', function () {
+                let existingTextarea=popup.querySelector('textarea');
+                if (existingTextarea) existingTextarea.remove();
+
+                const textarea=document.createElement('textarea');
+                textarea.placeholder='Type your response here and press Enter...';
+                textarea.classList.add('responseEntry');
+                popup.insertBefore(textarea, answerItem.nextSibling);
+                popup.style.display='flex';
+                popup.style.flexDirection='column';
+
+                textarea.addEventListener('keydown', function (event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+
+                        const submission=textarea.value.trim();
+                        if (submission) {
+                            const data = {
+                                submission: submission,
+                                parentID: parentID
+                            };
+
+                            fetch(`http://127.0.0.1:5000/submissions/${userID}`, {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+                                body: JSON.stringify(data)
+                            })
+                            .then(response => {
+                                if (!response.ok) throw new Error('Network response was not ok');
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (data.error) console.error(data.error);
+                                else {
+                                    console.log('Response submitted successfully:', data.message);
+                                    textarea.remove(); 
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error submitting the response:', error);
+                            });
+                        }
+                    }
+                });
+            });
+        }
+    });
+}
+
+export function getPopUpAnswers(userID=0, signedInBoolean){
+    const url='http://127.0.0.1:5000/submissions';
+    console.log(url);
+
+    fetch(url, {
+        method: 'GET',
+        headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}, 
+    })
+    .then(response=>{
+        if(!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+    })
+    .then(data=>{
+        if(data.error) console.log(data.error || 'you dont seem to exist? Thats weird :|');
+        else{
+            console.log('booya :P');
+            const answers=data.map(row=>({submission: row[2], parentID: row[0]}));
+            populatePopUp(answers, userID, signedInBoolean);
+        }
+    });
+}
+
+function getReplys(parentID){
+    const url=`http://127.0.0.1:5000/submissions/${parentID}`;
+    fetch(url, {
+        method: 'GET',
+        headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json()
+    })
+    .then(data => {
+        const replysDisplay=document.createElement('div');
+        replysDisplay.className='replysDisplay';
+
+        if (data.error) replysDisplay.textContent="No replys yet!";
+        else {
+            console.log('replys retrieved:', data);
+            if (Array.isArray(data)) {
+                data.forEach(row => {
+                    const replyDiv=document.createElement('div');
+                    replyDiv.className='reply';
+                    replyDiv.textContent=row.submission;
+                    replysDisplay.appendChild(replyDiv);
+                });
+                const userAnswer=document.querySelector('.todaysAnswer');
+                if (userAnswer) userAnswer.insertAdjacentElement('afterend', replysDisplay);
+                else console.error('No element with class "todaysAnswer" found.');
+            }
+        }
+    })
+    .catch(error => {
+        console.error('There has been a problem with your fetch operation:', error);
+    });
+}
+
+export function getTodaysAnswer(userID){
+    const url=`http://127.0.0.1:5000/submissions/${userID}`;
+    fetch(url, {
+        method: 'GET',
+        headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json()
+    })
+    .then(data => {
+        if (data.error) console.error(data.error)
+        else {
+            console.log('Answer retrieved:', data);
+            const userAnswer=document.createElement('div');
+            userAnswer.className='todaysAnswer';
+            userAnswer.innerHTML='<p>Todays Answer:</p>';
+
+            const answerText=document.createElement('div');
+            answerText.className='answerText';
+            answerText.textContent=data.submission;
+            userAnswer.appendChild(answerText);
+
+            const replyButton=document.createElement('button');
+            replyButton.className='replyButton';
+            replyButton.textContent='replys';
+            userAnswer.appendChild(replyButton);
+            replyButton.addEventListener('click', function(){
+                getReplys(data.id);
+            });
+
+            const questionsDiv=document.getElementById('questions');
+            questionsDiv.insertAdjacentElement('afterend', userAnswer);
+        }
+    })
+    .catch(error => {
+        console.error('There has been a problem with your fetch operation:', error);
+    });
+}

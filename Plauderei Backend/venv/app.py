@@ -351,7 +351,27 @@ def getTenAnswers():
         if answer:
             return jsonify(answer), 200
         else:
-            return jsonify({"error": "not enough questions submitted"})
+            return jsonify({"error": "no questions submitted"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/submissions/<int:parentID>', methods=['GET'])
+def getReplys(parentID):
+    conn=getDBConnection()
+    cursor=conn.cursor()
+
+    query="""SELECT * FROM submissions WHERE parentID = %s"""
+
+    try:
+        cursor.execute(query, (parentID,))
+        replys=cursor.fetchall()
+        if replys:
+            return jsonify(replys), 200
+        else:
+            return jsonify({"error": "no replys for this answer"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     finally:

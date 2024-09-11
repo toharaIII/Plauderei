@@ -1,4 +1,4 @@
-import { profileMenu, search, populatePage, populateBadges, populateFriendsList } from "../common.js";
+import { profileMenu, search, populatePage, populateBadges, populateFriendsList, getTodaysAnswer } from "../common.js";
 
 document.addEventListener('DOMContentLoaded', function() {
     let userAnswers=0;
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
         populateBadges(badgesCnt);
         populateFriendsList(friendCnt, friends);
         populateSubmittedQuestions(submittedQuestionsArray);
-        getTodaysResponse(userID)
+        getTodaysAnswer(userID);
     })
 
     const menuIcon=document.getElementById('menuIcon');
@@ -166,34 +166,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const submittedQuestionsContent=document.getElementById('submittedQuestionsContent');
         submittedQuestionsContent.style.display=submittedQuestionsContent.style.display==='flex'?'none':'flex';
     });
-
-    function getTodaysResponse(userID){
-        const url=`http://127.0.0.1:5000/submissions/${userID}`; // Replace with the actual URL of your Flask API
-
-        fetch(url, {
-            method: 'GET',
-            headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.json(); // Parse the response as JSON
-        })
-        .then(data => {
-            if (data.error) console.error(data.error)
-            else {
-                console.log('Answer retrieved:', data);
-                const userAnswer=document.createElement('div');
-                userAnswer.className='todaysAnswer';
-                userAnswer.textContent=data.submission;
-                
-                const questionsDiv = document.getElementById('questions');
-                questionsDiv.insertAdjacentElement('afterend', answerDiv);
-            }
-        })
-        .catch(error => {
-            console.error('There has been a problem with your fetch operation:', error);
-        });
-    };
 
     //call with the second variable as a string
     function updatePinned(pinnedString, pinNum){
