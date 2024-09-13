@@ -369,7 +369,8 @@ def getReplys(parentID):
         cursor.execute(query, (parentID,))
         replys=cursor.fetchall()
         if replys:
-            return jsonify(replys), 200
+            replysList=[dict(row) for row in replys]
+            return jsonify(replysList), 200
         else:
             return jsonify({"error": "no replys for this answer"})
     except Exception as e:

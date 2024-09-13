@@ -234,6 +234,14 @@ export function getPopUpAnswers(userID=0, signedInBoolean){
 }
 
 function getReplys(parentID){
+    const existingReplysDisplay = document.querySelector('.replysDisplay');
+    if (existingReplysDisplay) {
+        existingReplysDisplay.remove();
+        document.querySelector('.todaysAnswer').classList.remove('replys');
+        document.removeEventListener('click', handleClickOutside);
+        return;
+    }
+
     const url=`http://127.0.0.1:5000/submissions/${parentID}`;
     fetch(url, {
         method: 'GET',
@@ -250,17 +258,21 @@ function getReplys(parentID){
         if (data.error) replysDisplay.textContent="No replys yet!";
         else {
             console.log('replys retrieved:', data);
-            if (Array.isArray(data)) {
+            if (Array.isArray(data.replys)) {
                 data.forEach(row => {
                     const replyDiv=document.createElement('div');
-                    replyDiv.className='reply';
                     replyDiv.textContent=row.submission;
                     replysDisplay.appendChild(replyDiv);
                 });
-                const userAnswer=document.querySelector('.todaysAnswer');
-                if (userAnswer) userAnswer.insertAdjacentElement('afterend', replysDisplay);
-                else console.error('No element with class "todaysAnswer" found.');
+            } else if(typeof data==='object'){
+                const replyDiv=document.createElement('div');
+                replyDiv.textContent=data.submission;
+                replysDisplay.appendChild(replyDiv);
             }
+            const userAnswer=document.querySelector('.todaysAnswer');
+            userAnswer.insertAdjacentElement('afterend', replysDisplay);
+            userAnswer.classList.add('replys');
+            document.addEventListener('click', handleClickOutside);
         }
     })
     .catch(error => {
@@ -268,7 +280,29 @@ function getReplys(parentID){
     });
 }
 
-export function getTodaysAnswer(userID){
+function handleClickOutside(event) {
+    const userAnswer=document.querySelector('.todaysAnswer');
+    const replysDisplay=document.querySelector('.replysDisplay');
+    
+    if (replysDisplay && !userAnswer.contains(event.target) && !replysDisplay.contains(event.target)) {
+        replysDisplay.remove();
+        document.removeEventListener('click', handleClickOutside); 
+        console.log("RepliesDisplay removed");
+    }
+}
+
+function pinButtonFunctionality(answerText){
+    const pinButton=document.createElement('button');
+    pinButton.className='pinButton';
+    const pin=document.createElement('img');
+    pin.src='../../pin.png';
+    pin.id="pin";
+    pinButton.appendChild(pin);
+    userAnswer.appendChild(pinButton);
+    pinButton.addEventListener('click', updatePinned(answerText));
+}
+
+export function getTodaysAnswer(userID, myProfile){
     const url=`http://127.0.0.1:5000/submissions/${userID}`;
     fetch(url, {
         method: 'GET',
@@ -284,8 +318,12 @@ export function getTodaysAnswer(userID){
             console.log('Answer retrieved:', data);
             const userAnswer=document.createElement('div');
             userAnswer.className='todaysAnswer';
-            userAnswer.innerHTML='<p>Todays Answer:</p>';
 
+            if(myProfile) pinButtonFunctionality(data.submission);
+
+            const paragraph=document.createElement('p');
+            paragraph.textContent='Todays Answer:';
+            userAnswer.appendChild(paragraph);
             const answerText=document.createElement('div');
             answerText.className='answerText';
             answerText.textContent=data.submission;
@@ -296,6 +334,7 @@ export function getTodaysAnswer(userID){
             replyButton.textContent='replys';
             userAnswer.appendChild(replyButton);
             replyButton.addEventListener('click', function(){
+                console.log("reply button clicked");
                 getReplys(data.id);
             });
 

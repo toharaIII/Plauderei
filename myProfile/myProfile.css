@@ -223,15 +223,17 @@
     overflow-y: auto;
     text-align: left;
 }
-#pinnedAnswers img {
+#pin{
     width: 20px;
     height: 20px;
 }
-#pinnedOne, #pinnedTwo, #pinnedThree {
-    display: none;
+.pinned{
+    display: block;
     margin-top: 10px;
     padding: 5px 5px 5px 5px;
     background-color: rgb(247, 247, 247);
+    color: rgb(56, 56, 56);
+    font-size: 16px;
     border: none;
     border-radius: 5px;
     text-align: center;

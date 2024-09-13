@@ -82,6 +82,18 @@ body {
     color: rgb(56, 56, 56);
     align-items: flex-start;
 }
+.todaysAnswer.replys {
+    margin-top: 20px;
+    margin-left: 40px;
+    margin-right: 40px;
+    margin-bottom: 0px;
+}
+.pinButton {
+    background-color: rgb(248, 239, 226);
+    border: none;
+    cursor: pointer;
+    align-self: center;
+}
 .answerText {
     flex-grow: 1;
     margin: 15px;
@@ -99,6 +111,19 @@ body {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+}
+.replysDisplay{
+    display: block;
+    margin-top: 0px;
+    margin-left: 40px;
+    margin-right: 40px;
+    margin-bottom: 20px;
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: rgb(248, 239, 226);
+    color: rgb(56, 56, 56);
+    align-items: flex-start;
 }
 
 .devCredit {

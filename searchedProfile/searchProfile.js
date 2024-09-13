@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateUI();
         populateBadges(badgesCnt);
         populateFriendsList(friendCnt);
-        getTodaysAnswer(searchedUserId);
+        getTodaysAnswer(searchedUserId, false);
     })
     
     const menuIcon=document.getElementById('menuIcon');

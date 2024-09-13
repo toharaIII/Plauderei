@@ -41,7 +41,8 @@ document.addEventListener('DOMContentLoaded', function() {
         populateBadges(badgesCnt);
         populateFriendsList(friendCnt, friends);
         populateSubmittedQuestions(submittedQuestionsArray);
-        getTodaysAnswer(userID);
+        getTodaysAnswer(userID, true);
+        populatePinnedAnswers();
     })
 
     const menuIcon=document.getElementById('menuIcon');
@@ -167,14 +168,46 @@ document.addEventListener('DOMContentLoaded', function() {
         submittedQuestionsContent.style.display=submittedQuestionsContent.style.display==='flex'?'none':'flex';
     });
 
-    //call with the second variable as a string
-    function updatePinned(pinnedString, pinNum){
-        if (pinnedString!=''){
-            const pinnedNum=document.getElementById(`${pinNum}`);
-            const string=document.createElement('span');
-            string.textContent=`${pinnedString}`;
-            pinnedNum.appendChild(string)
-            pinnedNum.style.display=pinnedNum.style.display==='block'?'none':'block';
-        }
+    //I HAVENT TESTED ANY OF THIS PINNED SHIT SO NONE OF THE PINNED SHIT IN THE TODAYSANSWER FUNCTION EITHER
+    function updatePinned(answerText){
+
+
+        value=[/*will hold the question when i create the admin page and that table*/,answerText];
+
+        const url=`http://127.0.0.1:5000/users/${userID}`;
+        const data={pinnedAnswers: value};
+
+        fetch(url, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+        .then(response=>{
+            if(!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data=>{
+            if(data.message) alert('booya :P')
+            else alert(data.error || 'cant add to the list?');
+        })
+        .catch((error)=>{
+            console.error('Error:', error);
+            alert('An error occured while trying to submit this question. Please try again later.');
+        });
     };
+
+    function populatePinnedAnswers(){
+        if(pinnedAnswers.length()>0){
+            for(let i=0; i<pinnedAnswers.length(); i++){
+                let pinned=document.createElement('div');
+                pinned.className="pinned";
+                let question=document.createElement('p');
+                question.textContent=pinnedAnswers[i][0];
+                pinned.appendChild(question);
+                let answer=document.createElement('p');
+                answer.textContent=pinnedAnswers[i][1];
+                pinned.appendChild(answer);
+            }
+        }
+    }
 });
