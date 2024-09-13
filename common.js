@@ -161,7 +161,7 @@ function populatePopUp(answers, userID, signedInBoolean){
         answerItem.classList.add('answer');
         popup.appendChild(answerItem);
 
-        if(signedInBoolean){
+        if(signedInBoolean){ //maybe dry below and make a seperate function for user replys
             answerItem.addEventListener('click', function () {
                 let existingTextarea=popup.querySelector('textarea');
                 if (existingTextarea) existingTextarea.remove();
@@ -213,7 +213,6 @@ function populatePopUp(answers, userID, signedInBoolean){
 
 export function getPopUpAnswers(userID=0, signedInBoolean){
     const url='http://127.0.0.1:5000/submissions';
-    console.log(url);
 
     fetch(url, {
         method: 'GET',
@@ -260,6 +259,9 @@ function getReplys(parentID){
             console.log('replys retrieved:', data);
             if (Array.isArray(data.replys)) {
                 data.forEach(row => {
+                    const replyUserName=document.createElement('div');
+                    replyUserName.textContent=row.userName;
+                    replysDisplay.appendChild(replyUserName);
                     const replyDiv=document.createElement('div');
                     replyDiv.textContent=row.submission;
                     replysDisplay.appendChild(replyDiv);
@@ -280,7 +282,7 @@ function getReplys(parentID){
     });
 }
 
-function handleClickOutside(event) {
+function handleClickOutside(event) { //prob want to dry this so we can use it for general replys
     const userAnswer=document.querySelector('.todaysAnswer');
     const replysDisplay=document.querySelector('.replysDisplay');
     
@@ -313,6 +315,7 @@ export function getTodaysAnswer(userID, myProfile){
         return response.json()
     })
     .then(data => {
+        console.log(userID);
         if (data.error) console.error(data.error)
         else {
             console.log('Answer retrieved:', data);

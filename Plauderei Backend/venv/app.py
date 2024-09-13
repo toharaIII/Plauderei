@@ -243,7 +243,7 @@ def getAllSubmittedQuestions():
     conn=getDBConnection()
     cursor=conn.cursor()
 
-    query="""SELECT userID, submittedQuestions FROM users WHERE JSON_LENGTH(submittedQuestions) > 0;"""
+    query="""SELECT userID, userName, submittedQuestions FROM users WHERE JSON_LENGTH(submittedQuestions) > 0;"""
 
     try:
         cursor.execute(query)
@@ -284,7 +284,7 @@ this function allows a user to submit either an answer or response to another an
 @app.route('/submissions/<int:userID>', methods=['POST'])
 def submitAnswerorResponse(userID):
     data=request.json
-    allowedColumns=['submission','parentID']
+    allowedColumns=['submission','parentID','userName']
     updateColumns=[col for col in data.keys() if col in allowedColumns]
 
     if not updateColumns:
@@ -292,16 +292,17 @@ def submitAnswerorResponse(userID):
     
     submission=data['submission']
     parentID=data['parentID']
+    username=data['username']
 
     conn=getDBConnection()
     cursor=conn.cursor()
     query="""
-        INSERT INTO submissions (userID, submission, parentID)
-        VALUES (%s, %s, %s)
+        INSERT INTO submissions (userID, submission, parentID, userName)
+        VALUES (%s, %s, %s, %s)
     """
 
     try:
-        cursor.execute(query, (userID, submission, parentID))
+        cursor.execute(query, (userID, submission, parentID, username))
         conn.commit()
         return jsonify({"message": "submission successfully added"}), 201
     except Exception as e:

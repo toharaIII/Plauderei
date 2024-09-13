@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlaudereiAdminPage</title>
+    <link rel="stylesheet" href="../common.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="titleLine">
+        <div class="menu-icon" id="menuIcon"> <!--bar1, bar2, and bar3 are the bars for the actual menu icon-->
+            <div class="bar1"></div>
+            <div class="bar2"></div>
+            <div class="bar3"></div>
+        </div>
+
+        <div class="title">Plauderei</div>
+
+        <div class="answersAndResponses">
+            Answers: <span id="answerCnt"></span><br>
+            Responses: <span id="responseCnt"></span>
+        </div>
+    </div>
+
+    <div class="menuQuestionLine">
+        <nav id="menu">
+            <div id="menuLink"><a href="../../homeSignedIn/homeSIIndex.html">Home</a></div> <!--replace # with the real link for all anchors-->
+            <input type="search" id="userSearch" name="userName" placeholder="User Search">
+            <button id="searchSubmit" class="searchSubmit">Search</button>
+            <div id="menuLink"><a href="../../homeNotSignedIn/homeNotSIIndex.html">Sign Out</a></div>
+        </nav>
+    </div>
+
+    <div id="questionControl" class="questionControl">
+        <textarea id="adminSubmission" class="adminSubmission" placeholder="append to queue..."></textarea>
+        <button id="allSubmissionsButton" class="allSubmissionsButton">Show All Submissions</button>
+        <button id="questionQueue" class="questionQueue">Show Existing Queue</button>
+    </div>
+
+    <div id="displayArea" class="displayArea"></div>
+
+    <div class="devCredit">Created by Thomas O'Hara :D</div>
+
+    <script type="module" src="admin.js"></script>
+</body>
+</html>

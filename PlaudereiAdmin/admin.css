@@ -1,0 +1,73 @@
+.answersAndResponses {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 5px;
+    background-color: rgb(248, 239, 226);
+    border: 1px rgb(248, 239, 226);
+    border-radius: 5px;
+}
+
+.questionControl{
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    margin-top: 30px;
+    margin-left: 40px;
+    margin-right: 40px;
+    margin-bottom: 30px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-color: rgb(248, 239, 226);
+    color: rgb(56, 56, 56);
+    border: none;
+    border-radius: 5px;
+}
+
+.adminSubmission{
+    margin-top: 5px;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-bottom: 5px;
+    background-color: rgb(247, 247, 247);
+    color: rgb(56, 56, 56);
+    border: none;
+    border-radius: 5px;
+}
+
+.allSubmissionsButton{
+    margin-top: 5px;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-bottom: 5px;
+    background-color: rgb(247, 247, 247);
+    color: rgb(56, 56, 56);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.questionQueue{
+    margin-top: 5px;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-bottom: 5px;
+    background-color: rgb(247, 247, 247);
+    color: rgb(56, 56, 56);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.displayArea{
+    display: block;
+    margin-top: 30px;
+    margin-left: 40px;
+    margin-right: 40px;
+    margin-bottom: 30px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-color: rgb(247, 247, 247);
+    color: rgb(56, 56, 56);
+    border: none;
+    border-radius: 5px;
+}
