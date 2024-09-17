@@ -258,6 +258,10 @@ def getAllSubmittedQuestions():
         cursor.close()
         conn.close()
 
+
+
+
+
 #below is for the submissions tables
 def resetSubmissions():
     if datetime.now().strftime('%H:%M') == '00:00':
@@ -276,6 +280,65 @@ def runScheduler():
     scheduler=BackgroundScheduler()
     scheduler.add_job(func=resetSubmissions, trigger='cron', hour=0, minute=0)
     scheduler.start()
+
+
+
+
+
+
+
+"""
+gets the question for today
+"""
+@app.route('/todaysQuestion', methods=['GET'])
+def getTodaysQuestion():
+    conn=getDBConnection()
+    cursor=conn.cursor() 
+
+    query="""SELECT * FROM todaysquestion;"""
+
+    try:
+        cursor.execute(query)
+        answer=cursor.fetchone()
+        if answer:
+            return jsonify(answer), 200
+        else:
+            return jsonify({"error": "no questions for today BIG PROBLEM"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+"""
+updates the question for tomorrow
+"""
+@app.route('/todaysQuestion', methods=['PATCH'])
+def updateTodaysQuestion():
+    data=request.json
+    question=data['question']
+    if not question:
+        return jsonify({"error": "No question in message sent"}), 400
+
+    conn=getDBConnection()
+    cursor=conn.cursor()
+
+    query="""UPDATE todaysquestion SET question = %s"""
+
+    try:
+        cursor.execute(query, (question,))
+        conn.commit()
+        return jsonify({"message": "question successfully updated"}), 201
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+
+
 
 
 """
@@ -379,6 +442,10 @@ def getReplys(parentID):
     finally:
         cursor.close()
         conn.close()
+
+
+
+
 
 if __name__=='__main__':
      runScheduler()
