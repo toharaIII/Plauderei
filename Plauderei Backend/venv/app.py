@@ -199,7 +199,6 @@ def removeFriend(userID):
     
     conn=getDBConnection()
     cursor=conn.cursor()
-
     query="""
         UPDATE users
         SET friendsList = JSON_REMOVE(friendsList, 
@@ -235,25 +234,6 @@ def deleteUser(userID):
             return jsonify({"error":"User not found"}), 404
     except mysql.connector.Error as err:
         return jsonify({"error":str(err)}), 500
-    finally:
-        conn.close()
-
-@app.route('/admin', methods=['GET'])
-def getAllSubmittedQuestions():
-    conn=getDBConnection()
-    cursor=conn.cursor()
-
-    query="""SELECT userID, userName, submittedQuestions FROM users WHERE JSON_LENGTH(submittedQuestions) > 0;"""
-
-    try:
-        cursor.execute(query)
-        answer=cursor.fetchall()
-        if answer:
-            return jsonify(answer), 200
-        else:
-            return jsonify({"error": "unable to collect questions"})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
     finally:
         cursor.close()
         conn.close()
@@ -294,7 +274,6 @@ gets the question for today
 def getTodaysQuestion():
     conn=getDBConnection()
     cursor=conn.cursor() 
-
     query="""SELECT * FROM todaysquestion;"""
 
     try:
@@ -322,7 +301,6 @@ def updateTodaysQuestion():
 
     conn=getDBConnection()
     cursor=conn.cursor()
-
     query="""UPDATE todaysquestion SET question = %s"""
 
     try:
@@ -382,7 +360,6 @@ this function will get and return the ANSWER of a specific user, assuming one ex
 def getSpecificAnswer(userID):
     conn=getDBConnection()
     cursor=conn.cursor(dictionary=True) 
-
     query="""SELECT * FROM submissions WHERE userID = %s AND parentID = 1 LIMIT 1"""
 
     try:
@@ -406,7 +383,6 @@ for when someone clicks on the question
 def getTenAnswers():
     conn=getDBConnection()
     cursor=conn.cursor() 
-
     query="""SELECT * FROM submissions WHERE parentID = 1 ORDER BY RAND() LIMIT 10;"""
 
     try:
@@ -426,7 +402,6 @@ def getTenAnswers():
 def getReplys(parentID):
     conn=getDBConnection()
     cursor=conn.cursor()
-
     query="""SELECT * FROM submissions WHERE parentID = %s"""
 
     try:
@@ -442,6 +417,161 @@ def getReplys(parentID):
     finally:
         cursor.close()
         conn.close()
+
+
+
+
+"""
+this function queries the mysql server to see if a userID passed in via json corresponds to that of any of the admins userID's this will be used to give admins access to the admin page via their menu on the site
+"""
+@app.route('/admin', methods=['POST'])
+def checkAdmin():
+    data=request.json
+    userID=data['userID']
+    if not userID:
+        return jsonify({"error": "no user in message"})
+    
+    conn=getDBConnection()
+    cursor=conn.cursor(dictionary=True)
+    query='''SELECT * FROM admin WHERE admin = %s'''
+
+    try:
+        cursor.execute(query, (userID,))
+        adminID=cursor.fetchone()
+        if adminID:
+            return jsonify({"message": "admin found", "adminID": adminID['admin']}), 200
+        else:
+            return jsonify({"error": "Username not Admin or invalid ssername"}), 401
+    except mysql.connector.Error as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+"""
+this funciton queries the mysql server to add a userID to the admin list meaning that will be granted access to the admin page(s)
+"""
+@app.route('/admin', methods=['PATCH'])
+def addAdmin():
+    data=request.json
+    userID=data['userID']
+    if not userID:
+        return jsonify({"error": "No userID sent in message"}), 400
+
+    conn=getDBConnection()
+    cursor=conn.cursor()
+    query="""INSERT INTO admin (admin) VALUES (%s)"""
+
+    try:
+        cursor.execute(query, (userID,))
+        conn.commit()
+        return jsonify({"message": "User now made admin"}), 201
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+"""
+this function queries the mysql server to remove a userID that is presumed to be admin meaning that they will no longer be granted access to the admin page(s)
+"""
+@app.route('/admin', methods=['DELETE'])
+def removeAdmin():
+    data=request.json
+    userID=data['userID']
+    if not userID:
+        return jsonify({"error": "No userID sent in message"}), 400
+
+    conn=getDBConnection()
+    cursor=conn.cursor()
+    query="""DELETE FROM admin WHERE admin=%s"""
+
+    try:
+        cursor.execute(query, (userID,))
+        conn.commit()
+        return jsonify({"message": "User no longer admin"}), 201
+    except mysql.connector.Error as e:
+        return jsonify({"error":str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+
+"""
+this function returns all submitted questions from all users which have submitted a question for consideration from daily question
+"""
+@app.route('/questionQueue', methods=['GET'])
+def getAllSubmittedQuestions():
+    conn=getDBConnection()
+    cursor=conn.cursor()
+    query="""SELECT userID, userName, submittedQuestions FROM users WHERE JSON_LENGTH(submittedQuestions) > 0;"""
+
+    try:
+        cursor.execute(query)
+        answer=cursor.fetchall()
+        if answer:
+            return jsonify(answer), 200
+        else:
+            return jsonify({"error": "unable to collect questions"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+"""
+this function adds a question to the queue by adding it to the mysql question queue table, this is used on teh admin page or for the admins to directly add a question not submitted by a given user
+"""
+@app.route('/questionQueue', methods=['PATCH'])
+def addToQuestionQueue():
+    data=request.json
+    question=data['question']
+    if not question:
+        return jsonify({"error": "no question in message"})
+
+    conn=getDBConnection()
+    cursor=conn.cursor()
+    query="""INSERT INTO questionqueue (question) VALUES (%s)"""
+
+    try:
+        cursor.execute(query, (question,))
+        conn.commit()
+        return jsonify({"message": "question added to queue"}), 201
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+"""
+this function removes a question from the question row in the questionqueue table for the mysql server
+"""
+@app.route('/questionQueue', methods=['DELETE'])
+def removeQuestion():
+    data=request.json
+    question=data['question']
+    if not question:
+        return jsonify({"error": "No question in message"}), 400
+
+    conn=getDBConnection()
+    cursor=conn.cursor()
+    query="""DELETE FROM questionqueue WHERE question=%s"""
+
+    try:
+        cursor.execute(query, (question,))
+        conn.commit()
+        return jsonify({"message": "question no longer in queue"}), 201
+    except mysql.connector.Error as e:
+        return jsonify({"error":str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+
 
 
 
