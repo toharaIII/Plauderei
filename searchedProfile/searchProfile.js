@@ -1,9 +1,10 @@
-import { profileMenu, search, populatePage, populateBadges, populateFriendsList, getTodaysAnswer } from "../common.js";
+import { profileMenu, search, populatePage, populateBadges, populateFriendsList, getTodaysAnswer, addAdminMenu } from "../common.js";
 
 document.addEventListener('DOMContentLoaded', function() {
     
     //let searchedUserId=localStorage.getItem('searchUserID');
     let searchedUserId=15;
+    let adminStatus=localStorage.getItem('adminStatus');
     let badgesCnt=0;
     let searchedUser=localStorage.getItem('searchUserName');
     let name="";
@@ -38,6 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
         populateBadges(badgesCnt);
         populateFriendsList(friendCnt);
         getTodaysAnswer(searchedUserId, false);
+        if(adminStatus===true) addAdminMenu();
     })
     
     const menuIcon=document.getElementById('menuIcon');

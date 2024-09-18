@@ -349,3 +349,16 @@ export function getTodaysAnswer(userID, myProfile){
         console.error('There has been a problem with your fetch operation:', error);
     });
 }
+
+export function addAdminMenu(){
+    let menu=document.getElementById('menu');
+    let adminMenu=document.createElement('div');
+    adminMenu.classList='adminMenu';
+
+    let adminLink=document.createElement('a');
+    adminLink.href="../../PlaudereiAdmin/adminIndex.html";
+    adminLink.textContent="Admin Page";
+    
+    adminMenu.appendChild(adminLink);
+    menu.appendChild(adminMenu);
+}

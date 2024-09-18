@@ -1,4 +1,4 @@
-import { homeMenu, search, populatePage, getPopUpAnswers} from "../common.js";
+import { homeMenu, search, populatePage, getPopUpAnswers, addAdminMenu} from "../common.js";
 
 document.addEventListener('DOMContentLoaded', function() {
     let dailyAnswer=false;
@@ -31,6 +31,35 @@ document.addEventListener('DOMContentLoaded', function() {
             enterAnswer.classList.add('hide');
         }
     };
+    function checkAdmin(userID){
+        const url='http://127.0.0.1:5000/admin';
+        const data={userID: userID};
+
+        fetch(url, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+        .then(response=>{
+            if(!response.ok) throw new Error('Network response was not ok');
+            return false;
+        })
+        .then(data=>{
+            if(data.message){
+                alert('youre an admin!');
+                return true;
+            }
+            else{
+                alert(data.error || 'This user isnt an admin');
+                return false;
+            }
+        })
+        .catch((error)=>{
+            console.error('Error:', error);
+            alert('An error occured while trying to check this. Please try again later.');
+            return false;
+        });
+    }
     
     populatePage(userId).then(data => {
         userAnswers=data.answerTotal;
@@ -38,6 +67,9 @@ document.addEventListener('DOMContentLoaded', function() {
         dailyAnswer=data.dailyAnswer;
         console.log(userAnswers, userResponses);
         updateUI();
+        adminStatus=checkAdmin(userId);
+        localStorage.setItem('adminStatus', adminStatus);
+        if(adminStatus===true) addAdminMenu();
     });
 
     const menuIcon=document.getElementById('menuIcon');

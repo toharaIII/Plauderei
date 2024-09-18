@@ -21,16 +21,43 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchSubmit=document.getElementById('searchSubmit');
     searchSubmit.addEventListener('click', search);
 
-    function addToQueue(question, userID){}
+    function addToQueue(question, userID){
+        const url=`http://127.0.0.1:5000//questionQueue`;
+        data={"question": question, "userID": userID};
+
+        fetch(url, {
+            method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+        })
+        .then(response=>{
+            if(!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data=>{
+            if(data.message) console.log('question added to queue');
+            else console.log(data.error || "cant add to queue");
+        })
+        .catch((error)=>{
+            console.error('Error:', error);
+        });
+    }
+
+    document.getElementById('adminSubmission').addEventListener('keydown', function(event){
+        if(event.key==='Enter'){
+            event.preventDefault();
+            let adminSubmission=document.getElementById('adminSubmission').textContent;
+            addToQueue(adminSubmission, userID);
+        }
+    });
 
     document.getElementById('allSubmissionsButton').addEventListener('click', function(event){
         let displayArea=document.getElementById('displayArea');
         displayArea.innerHTML='';
 
-        const url=`http://127.0.0.1:5000/admin`;
+        const url=`http://127.0.0.1:5000//questionQueue`;
 
         fetch(url, {
-            method: 'PATCH',
+            method: 'GET',
                 headers: {'Content-Type': 'application/json'},
         })
         .then(response=>{
@@ -49,10 +76,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         userName.textContent=user[1];
                         questionDiv.appendChild(userName);
                         questionDiv.appendChild(question);
-                        const addToQueue=document.createElement('button');
-                        addToQueue.textContent='Add to Queue';
-                        questionDiv.appendChild(addToQueue);
-                        addToQueue.addEventListener('click', addToQueue(question, user));
+                        const addToQueueElement=document.createElement('button');
+                        addToQueueElement.textContent='Add to Queue';
+                        questionDiv.appendChild(addToQueueElement);
+                        addToQueueElement.addEventListener('click', addToQueue(question, user));
                     })
                 })
             }
@@ -63,10 +90,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     })
 
-
-
-    document.getElementById('allSubmissionsButton').addEventListener('click', function(event){
+    //not sure why this is here or if it was needed
+    /*document.getElementById('allSubmissionsButton').addEventListener('click', function(event){
         let displayArea=document.getElementById('displayArea');
         displayArea.innerHTML='';
-    })
+    })*/ 
 });

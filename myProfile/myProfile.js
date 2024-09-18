@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     //let userID=localStorage.getItem('userID');
     let userID=1;
+    let adminStatus=localStorage.getItem('adminStatus');
     let badgesCnt=0;
     let userName="";
     let name="";
@@ -43,6 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
         populateSubmittedQuestions(submittedQuestionsArray);
         getTodaysAnswer(userID, true);
         //populatePinnedAnswers();
+        if(adminStatus===true) addAdminMenu();
     })
 
     const menuIcon=document.getElementById('menuIcon');
