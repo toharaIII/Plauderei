@@ -242,19 +242,32 @@ def deleteUser(userID):
 
 
 
-#below is for the submissions tables
 def resetSubmissions():
     if datetime.now().strftime('%H:%M') == '00:00':
-        conn=getDBConnection()
-        cursor=conn.cursor()
+        conn = getDBConnection()
+        cursor = conn.cursor()
 
-        cursor.execute("TRUNCATE TABLE submissions")
-        cursor.execute("INSERT INTO submissions (userID, submissions, parentID) VALUES (1, '', NULL);")
-        
-        conn.commit()
-        cursor.close()
-        conn.close()
-        print("submissions table reset!")
+        try:
+            cursor.execute("SELECT * FROM questionqueue ORDER BY id ASC LIMIT 1;")
+            first_row = cursor.fetchone()
+
+            if first_row:
+                question_id = first_row[0]  # Assuming 'id' is in the first column
+                cursor.execute("DELETE FROM questionqueue WHERE id = %s;", (question_id,))
+                print(f"Deleted questionqueue row with id: {question_id}")
+            else:
+                print("No rows in questionqueue to delete.")
+
+            cursor.execute("TRUNCATE TABLE submissions;")
+            cursor.execute("INSERT INTO submissions (userID, submissions, parentID) VALUES (1, '', NULL);")
+            
+            conn.commit()
+            print("submissions table reset!")
+        except Exception as e:
+            print(f"Error during reset: {e}")
+        finally:
+            cursor.close()
+            conn.close()
 
 def runScheduler():
     scheduler=BackgroundScheduler()
