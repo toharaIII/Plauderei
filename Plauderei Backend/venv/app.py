@@ -521,6 +521,25 @@ def getAllSubmittedQuestions():
         cursor.close()
         conn.close()
 
+@app.route('/questionQueueSubmissions', methods=['GET'])
+def getQueue():
+    conn=getDBConnection()
+    cursor=conn.cursor()
+    query="SELECT * FROM questionqueue"
+
+    try:
+        cursor.execute(query)
+        answer=cursor.fetchall()
+        if answer:
+            return jsonify(answer), 200
+        else:
+                return jsonify({"error": "no queue currently"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
 """
 this function adds a question to the queue by adding it to the mysql question queue table, this is used on teh admin page or for the admins to directly add a question not submitted by a given user
 """
@@ -528,15 +547,16 @@ this function adds a question to the queue by adding it to the mysql question qu
 def addToQuestionQueue():
     data=request.json
     question=data['question']
+    userID=data['userID']
     if not question:
         return jsonify({"error": "no question in message"})
 
     conn=getDBConnection()
     cursor=conn.cursor()
-    query="""INSERT INTO questionqueue (question) VALUES (%s)"""
+    query="""INSERT INTO questionqueue (question, userID) VALUES (%s, %s)"""
 
     try:
-        cursor.execute(query, (question,))
+        cursor.execute(query, (question, userID,))
         conn.commit()
         return jsonify({"message": "question added to queue"}), 201
     except Exception as e:
@@ -563,7 +583,7 @@ def removeQuestion():
     try:
         cursor.execute(query, (question,))
         conn.commit()
-        return jsonify({"message": "question no longer in queue"}), 201
+        return jsonify({"message": "question no longer in queue"}), 200
     except mysql.connector.Error as e:
         return jsonify({"error":str(e)}), 500
     finally:

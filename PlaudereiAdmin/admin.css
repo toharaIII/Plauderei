@@ -66,8 +66,33 @@
     margin-bottom: 30px;
     padding-top: 10px;
     padding-bottom: 10px;
+    background-color: rgb(248, 239, 226);
+    color: rgb(56, 56, 56);
+    border: none;
+    border-radius: 5px;
+}
+
+.questionHolder{
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    margin-top: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
     background-color: rgb(247, 247, 247);
     color: rgb(56, 56, 56);
     border: none;
     border-radius: 5px;
+}
+.userName{grid-column: 1;}
+.questionText{grid-column: 2/6;}
+.addToQueueElement{
+    grid-column: 6;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }
