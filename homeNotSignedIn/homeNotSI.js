@@ -1,8 +1,10 @@
 import { homeMenu, removeShow, search, getPopUpAnswers } from "../common.js";
 
 document.addEventListener('DOMContentLoaded', function() {
+    localStorage.clear();
     let signedInBoolean=false;
     localStorage.setItem('signedInBoolean', signedInBoolean); //will prevent people that arent signed in from doing signed in shit
+    console.log(localStorage.getItem('signedInBoolean'));
 
     let questionString="Where does politics end and war begin?";
 
@@ -95,12 +97,34 @@ document.addEventListener('DOMContentLoaded', function() {
             return response.json();
         })
         .then(data=>{
-            if(data.message) window.location.href = '../../homeSignedIn/homeSIIndex.html';
+            if(data.message) console.log("user created, now fetching...")
             else alert(data.error || 'Failed to create account. Please try again.');
         })
         .catch((error)=>{
             console.error('Error:', error);
             alert('An error occurred while trying to create your account. Please try again later.');
+        });
+
+        const newData={username: username};
+
+        fetch('http://127.0.0.1:5000/users/search', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(newData)
+        })
+        .then(response=>{
+            if(!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data=>{
+            if(data.message){
+                localStorage.setItem('userID', data.userID);
+                window.location.href = '../../homeSignedIn/homeSIIndex.html';
+            }else alert(data.error || 'Failed to create and fetch your account. Please try again.');
+        })
+        .catch((error)=>{
+            console.error('Error:', error);
+            alert('An error occurred while trying to create and fetch your account. Please try again later.');
         });
     });
 

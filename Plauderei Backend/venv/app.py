@@ -29,15 +29,20 @@ fetchs all columns for a given user except for passowrd for security
 def getUser(userID):
     conn=getDBConnection()
     cursor=conn.cursor(dictionary=True) #dictionary=True means that the output from mysql is returned as a dictionary instead of a tuple
-    cursor.execute('SELECT username, name, bio, friendsList, pinnedAnswers, dateJoined, badges, answerTotal, responsesRemaining, dailyAnswer, submittedQuestions FROM users WHERE userID=%s', (userID,))
-    user=cursor.fetchone()
-    conn.close()
 
-    if user:
-        date_joined=datetime.strptime(str(user['dateJoined']), '%Y-%m-%d %H:%M:%S')
-        user['dateJoined']=date_joined.strftime('%B %Y')
-        return jsonify(user)
-    return jsonify({"error": "User not found"}), 404
+    try:
+        cursor.execute('SELECT username, name, bio, friendsList, pinnedAnswers, dateJoined, badges, answerTotal, responsesRemaining, dailyAnswer, submittedQuestions FROM users WHERE userID=%s', (userID,))
+        user=cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if user:
+            date_joined=datetime.strptime(str(user['dateJoined']), '%Y-%m-%d %H:%M:%S')
+            user['dateJoined']=date_joined.strftime('%B %Y')
+            return jsonify(user)
+        
+    except:
+        return jsonify({"error": "User not found"}), 404
 
 """
 fills all required columns (userID, username, password and dateJoined) for a new row in users
@@ -346,7 +351,7 @@ def submitAnswerorResponse(userID):
     
     submission=data['submission']
     parentID=data['parentID']
-    username=data['username']
+    username=data['userName']
 
     conn=getDBConnection()
     cursor=conn.cursor()

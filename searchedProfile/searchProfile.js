@@ -2,8 +2,8 @@ import { profileMenu, search, populatePage, populateBadges, populateFriendsList,
 
 document.addEventListener('DOMContentLoaded', function() {
     
-    //let searchedUserId=localStorage.getItem('searchUserID');
-    let searchedUserId=15;
+    let searchedUserId=localStorage.getItem('searchUserID');
+    //let searchedUserId=15; //for testing
     let adminStatus=localStorage.getItem('adminStatus');
     let badgesCnt=0;
     let searchedUser=localStorage.getItem('searchUserName');

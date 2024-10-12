@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let userAnswers=0;
     let userResponses=0;
 
-    //let userID=localStorage.getItem('userID');
-    let userID=1;
+    let userID=localStorage.getItem('userID');
+    //let userID=1; //for testing
     let adminStatus=localStorage.getItem('adminStatus');
     let badgesCnt=0;
     let userName="";

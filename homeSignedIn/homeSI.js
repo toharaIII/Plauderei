@@ -4,8 +4,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let dailyAnswer=false;
     let signedInBoolean=true;
     localStorage.getItem('signedInBoolean', signedInBoolean);
-    //let userId=localStorage.getItem('userID'); //for actual
-    let userId=15;//for page testing
+    console.log(localStorage.getItem('userID'));
+    let userId=localStorage.getItem('userID'); //for actual
+    console.log(userId);
+    console.log(signedInBoolean);
+    //let userId=15;//for page testing
     let userAnswers=0;
     let userResponses=0;
 
@@ -20,17 +23,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const answerBox=document.getElementById('userAnswer');
     const enterAnswer=document.getElementById('enterAnswer');
-    const savedTextSpan=document.getElementById('savedAnswer');
     function updateUI(){
         document.getElementById("answerCnt").textContent=userAnswers;
         document.getElementById("responseCnt").textContent=userResponses;
+        console.log("daily answer:");
+        console.log(dailyAnswer);
 
         if(dailyAnswer===true){
             alreadyAnswered.classList.add('show');
             answerBox.classList.add('hide');
             enterAnswer.classList.add('hide');
+        } else{
+            alreadyAnswered.classList.remove('show');
+            answerBox.classList.remove('hide');
+            enterAnswer.classList.remove('hide');
         }
     };
+
     function checkAdmin(userID){
         const url='http://127.0.0.1:5000/admin';
         const data={userID: userID};
@@ -46,11 +55,11 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(data=>{
             if(data.message){
-                alert('youre an admin!');
+                console.log('youre an admin!');
                 return true;
             }
             else{
-                alert(data.error || 'This user isnt an admin');
+                console.log(data.error || 'This user isnt an admin');
                 return false;
             }
         })
@@ -67,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
         dailyAnswer=data.dailyAnswer;
         console.log(userAnswers, userResponses);
         updateUI();
-        adminStatus=checkAdmin(userId);
+        let adminStatus=checkAdmin(userId);
         localStorage.setItem('adminStatus', adminStatus);
         if(adminStatus===true) addAdminMenu();
     });
@@ -80,13 +89,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function saveText(){
         const userAnswer=answerBox.value;
-        savedTextSpan.textContent=userAnswer;
         console.log("saved string: ", userAnswer);
-        answerBox.classList.add('hide');
-        enterAnswer.classList.add('hide');
-
+        dailyAnswer=true;
         userAnswers--;
-        document.getElementById("answerCnt").textContent=userAnswers;
+        updateUI();
 
         const url=`http://127.0.0.1:5000/users/${userId}`;
         const data={answerTotal: userAnswers, dailyAnswer: true};
@@ -102,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(data=>{
             if(data.success) alert('booya :P')
-            else alert(data.error || 'This User Doesnt seem to exist? Thats weird :|');
+            else alert(data.error || 'seems like you\'ve already answered today, how do you see this button?');
         })
         .catch((error)=>{
             console.error('Error:', error);
