@@ -61,6 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(data=>{
             if(data.message){
+                localStorage.setItem('userName', username);
                 localStorage.setItem('userID', data.userID);
                 window.location.href='../../homeSignedIn/homeSIIndex.html';
             }else alert(data.error || 'Invalid username or password. Please try again.');
@@ -118,6 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(data=>{
             if(data.message){
+                localStorage.setItem('userName', username);
                 localStorage.setItem('userID', data.userID);
                 window.location.href = '../../homeSignedIn/homeSIIndex.html';
             }else alert(data.error || 'Failed to create and fetch your account. Please try again.');

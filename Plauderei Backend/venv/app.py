@@ -264,7 +264,7 @@ def resetSubmissions():
                 print("No rows in questionqueue to delete.")
 
             cursor.execute("TRUNCATE TABLE submissions;")
-            cursor.execute("INSERT INTO submissions (userID, submissions, parentID) VALUES (1, '', NULL);")
+            cursor.execute("INSERT INTO submissions (ID, userID, submissions, parentID) VALUES (1, 1, '', NULL);")
             
             conn.commit()
             print("submissions table reset!")
@@ -442,24 +442,20 @@ def getReplys(parentID):
 """
 this function queries the mysql server to see if a userID passed in via json corresponds to that of any of the admins userID's this will be used to give admins access to the admin page via their menu on the site
 """
-@app.route('/admin', methods=['POST'])
-def checkAdmin():
-    data=request.json
-    userID=data['userID']
-    if not userID:
-        return jsonify({"error": "no user in message"})
-    
+@app.route('/admin/<int:userID>', methods=['GET'])
+def checkAdmin(userID):
     conn=getDBConnection()
-    cursor=conn.cursor(dictionary=True)
+    cursor=conn.cursor(dictionary=True, buffered=True)
     query='''SELECT * FROM admin WHERE admin = %s'''
 
     try:
         cursor.execute(query, (userID,))
         adminID=cursor.fetchone()
+        print("adminID", adminID)
         if adminID:
-            return jsonify({"message": "admin found", "adminID": adminID['admin']}), 200
+            return jsonify({"message": "admin found"}), 200
         else:
-            return jsonify({"error": "Username not Admin or invalid ssername"}), 401
+            return jsonify({"error": "Username not Admin or invalid username"}), 401
     except mysql.connector.Error as e:
         return jsonify({"error": str(e)}), 500
     finally:

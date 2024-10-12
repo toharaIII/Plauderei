@@ -3,11 +3,10 @@ import { homeMenu, search, populatePage, getPopUpAnswers, addAdminMenu} from "..
 document.addEventListener('DOMContentLoaded', function() {
     let dailyAnswer=false;
     let signedInBoolean=true;
-    localStorage.getItem('signedInBoolean', signedInBoolean);
-    console.log(localStorage.getItem('userID'));
+    localStorage.setItem('signedInBoolean', signedInBoolean);
+    let userName=localStorage.getItem('userName');
+    console.log(userName);
     let userId=localStorage.getItem('userID'); //for actual
-    console.log(userId);
-    console.log(signedInBoolean);
     //let userId=15;//for page testing
     let userAnswers=0;
     let userResponses=0;
@@ -41,24 +40,25 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     function checkAdmin(userID){
-        const url='http://127.0.0.1:5000/admin';
-        const data={userID: userID};
+        const url=`http://127.0.0.1:5000/admin/${userID}`;
 
-        fetch(url, {
-            method: 'PATCH',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
+        return fetch(url, {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}
         })
         .then(response=>{
-            if(!response.ok) throw new Error('Network response was not ok');
-            return false;
+            if (!response.ok){
+                console.log("network response not ok");
+                return false;
+            }
+            return response.json();
         })
         .then(data=>{
             if(data.message){
                 console.log('youre an admin!');
                 return true;
             }
-            else{
+            if(data.error){
                 console.log(data.error || 'This user isnt an admin');
                 return false;
             }
@@ -70,16 +70,25 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    populatePage(userId).then(data => {
-        userAnswers=data.answerTotal;
-        userResponses=data.responsesRemaining;
-        dailyAnswer=data.dailyAnswer;
-        console.log(userAnswers, userResponses);
-        updateUI();
-        let adminStatus=checkAdmin(userId);
-        localStorage.setItem('adminStatus', adminStatus);
-        if(adminStatus===true) addAdminMenu();
-    });
+    function loadPage(userId){
+        populatePage(userId).then(data => {
+            userAnswers=data.answerTotal;
+            userResponses=data.responsesRemaining;
+            dailyAnswer=data.dailyAnswer;
+            updateUI();
+
+            return checkAdmin(userId);
+        })
+        .then(adminStatus=> {
+            console.log(adminStatus);
+            localStorage.setItem('adminStatus', adminStatus);
+            if(adminStatus===true) addAdminMenu();
+        })
+        .catch(error => {
+            console.error('Error loading page:', error);
+        });
+    }
+    loadPage(userId);
 
     const menuIcon=document.getElementById('menuIcon');
     menuIcon.addEventListener('click', homeMenu);
@@ -91,12 +100,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const userAnswer=answerBox.value;
         console.log("saved string: ", userAnswer);
         dailyAnswer=true;
+        if (userAnswers<=0){
+            alert("you dont have any remaining answers with which to submit this answer, sorry. :/")
+            return;
+        }
         userAnswers--;
         updateUI();
 
-        const url=`http://127.0.0.1:5000/users/${userId}`;
-        const data={answerTotal: userAnswers, dailyAnswer: true};
-
+        let url=`http://127.0.0.1:5000/users/${userId}`;
+        let data={answerTotal: userAnswers, dailyAnswer: true, todaysAnswer: userAnswer};
         fetch(url, {
             method: 'PATCH',
             headers: {'Content-Type': 'application/json'},
@@ -107,12 +119,31 @@ document.addEventListener('DOMContentLoaded', function() {
             return response.json();
         })
         .then(data=>{
-            if(data.success) alert('booya :P')
+            if(data.message) alert('booya :P')
             else alert(data.error || 'seems like you\'ve already answered today, how do you see this button?');
         })
         .catch((error)=>{
             console.error('Error:', error);
             alert('An error occured while trying to submit this answer. Please try again later.');
+        });
+
+        url=`http://127.0.0.1:5000/submissions/${userId}`;
+        data={submission: userAnswer, parentID: 15, userName: userName};
+        fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+        .then(response=>{
+            if(!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data=>{
+            if(data.message) alert('oh yea :P')
+        })
+        .catch((error)=>{
+            console.error('Error:', error);
+            alert('An error occured while trying to post this submission. Please try again later.');
         });
     }
     enterAnswer.addEventListener('click', function(){
