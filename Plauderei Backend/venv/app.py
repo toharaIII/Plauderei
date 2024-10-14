@@ -29,6 +29,7 @@ fetchs all columns for a given user except for passowrd for security
 def getUser(userID):
     conn=getDBConnection()
     cursor=conn.cursor(dictionary=True) #dictionary=True means that the output from mysql is returned as a dictionary instead of a tuple
+    jsonFields=['friendsList', 'submittedQuestions', 'pinnedAnswers']
 
     try:
         cursor.execute('SELECT username, name, bio, friendsList, pinnedAnswers, dateJoined, badges, answerTotal, responsesRemaining, dailyAnswer, submittedQuestions FROM users WHERE userID=%s', (userID,))
@@ -39,10 +40,18 @@ def getUser(userID):
         if user:
             date_joined=datetime.strptime(str(user['dateJoined']), '%Y-%m-%d %H:%M:%S')
             user['dateJoined']=date_joined.strftime('%B %Y')
+
+            for field in jsonFields:
+                if isinstance(user[field], str):
+                    try:
+                        user[field] = json.loads(user[field])
+                    except json.JSONDecodeError:
+                        return jsonify({"error": f"Failed to parse {field}"}), 500
+
             return jsonify(user)
         
-    except:
-        return jsonify({"error": "User not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 """
 fills all required columns (userID, username, password and dateJoined) for a new row in users
@@ -155,9 +164,23 @@ def updateUserColumns(userID):
 
     if not updateColumns:
         return jsonify({"error": "No valid columns to update"}), 400
-    
+
     conn=getDBConnection()
     cursor=conn.cursor()
+    cursor.execute('SELECT * FROM users WHERE userID = %s', (userID,))
+    current_data=cursor.fetchone()
+
+    if current_data:
+        column_names=[i[0] for i in cursor.description]
+
+        for col in jsonColumns:
+            if col in data:
+                col_index=column_names.index(col)
+
+                existing_data=json.loads(current_data[col_index]) if current_data[col_index] else []
+                new_data=data.get(col, [])
+                updated_data=existing_data + new_data
+                data[col]=updated_data
 
     setClauses=[]
     values=[]
@@ -165,7 +188,7 @@ def updateUserColumns(userID):
     for col in updateColumns:
         value=data[col]
         if col in jsonColumns:
-            value=json.dumps(value)  # Convert list to JSON string
+            value=json.dumps(value)
             setClauses.append(f"{col} = CAST(%s AS JSON)")
         else:
             setClauses.append(f"{col} = %s")
@@ -178,7 +201,7 @@ def updateUserColumns(userID):
     try:
         cursor.execute(query, tuple(values))
         conn.commit()
-        affectedRows=cursor.rowcount
+        affectedRows = cursor.rowcount
         conn.close()
 
         if affectedRows:

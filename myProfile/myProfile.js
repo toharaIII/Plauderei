@@ -41,7 +41,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateUI();
         populateBadges(badgesCnt);
         populateFriendsList(friendCnt, friends);
-        populateSubmittedQuestions(submittedQuestionsArray);
         getTodaysAnswer(userID, true);
         //populatePinnedAnswers();
         if(adminStatus===true) addAdminMenu();
@@ -55,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('changeName').addEventListener('keypress', function(event) {
         if (event.key==='Enter') {
-            newName=event.target.value;
+            let newName=event.target.value;
             const url=`http://127.0.0.1:5000/users/${userID}`;
             const data={name: newName};
 
@@ -123,51 +122,72 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const enterQuestion=document.getElementById('submitQuestion');
     function submitQuestionFromTextarea(submittedQuestionsArray){
-        const questionTextarea=document.getElementById('userQuestion');
-        let question=questionTextarea.value
-        submittedQuestionsArray.push(questionTextarea.value);
-        populateSubmittedQuestions(submittedQuestionsArray);
+        const questionTextarea = document.getElementById('userQuestion');
+        let question = questionTextarea.value;
 
-        const url=`http://127.0.0.1:5000/users/${userID}`;
-        const data={submittedQuestions: [question]};
+        const url = `http://127.0.0.1:5000/users/${userID}`;
+        const data = { submittedQuestions: [question] };
 
         fetch(url, {
             method: 'PATCH',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         })
-        .then(response=>{
-            if(!response.ok) throw new Error('Network response was not ok');
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
             return response.json();
         })
-        .then(data=>{
-            if(data.message) alert('booya :P')
+        .then(data => {
+            if (data.message) alert('booya :P');
             else alert(data.error || 'cant add to the list?');
         })
-        .catch((error)=>{
+        .catch((error) => {
             console.error('Error:', error);
-            alert('An error occured while trying to submit this question. Please try again later.');
+            alert('An error occurred while trying to submit this question. Please try again later.');
         });
-        questionTextarea.value='';
+        questionTextarea.value = '';
     };
     enterQuestion.addEventListener('click', function(){
         submitQuestionFromTextarea(submittedQuestionsArray);
     });
 
     function populateSubmittedQuestions(submittedQuestionsArray){
-        const submittedQuestionsContent=document.getElementById('submittedQuestionsContent');
-        submittedQuestionsContent.innerHTML='';
+        const submittedQuestionsContent = document.getElementById('submittedQuestionsContent');
+        submittedQuestionsContent.innerHTML = '';
 
-        for(let i=submittedQuestionsArray.length-1; i>=0; i--){
-            const question=document.createElement('div');
-            question.textContent=submittedQuestionsArray[i];
-            submittedQuestionsContent.appendChild(question);
-        }
+        const url=`http://127.0.0.1:5000/data/${userID}`;
+    
+        fetch(url, {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json'},
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            if(data.submittedQuestions){
+                submittedQuestionsArray=[...data.submittedQuestions];
+
+                console.log(submittedQuestionsArray);
+                for(let i=submittedQuestionsArray.length-1; i>=0; i--) {
+                    const question=document.createElement('div');
+                    question.textContent=submittedQuestionsArray[i];
+                    submittedQuestionsContent.appendChild(question);
+                }
+            }else{
+                alert(data.error || 'Could not fetch submitted questions');
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            alert('An error occurred while trying to fetch the questions. Please try again later.');
+        });
     };
-    populateSubmittedQuestions(submittedQuestionsArray);
     document.querySelector('.showSubmittedQuestions').addEventListener('click', function(){
         const submittedQuestionsContent=document.getElementById('submittedQuestionsContent');
         submittedQuestionsContent.style.display=submittedQuestionsContent.style.display==='flex'?'none':'flex';
+        if(submittedQuestionsContent.style.display=='flex') populateSubmittedQuestions(submittedQuestionsArray);
     });
 
     //I HAVENT TESTED ANY OF THIS PINNED SHIT SO NONE OF THE PINNED SHIT IN THE TODAYSANSWER FUNCTION EITHER
