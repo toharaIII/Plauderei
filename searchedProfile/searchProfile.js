@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let searchedUserId=localStorage.getItem('searchUserID');
     //let searchedUserId=15; //for testing
+    let userID=localStorage.getItem('userID');
     let adminStatus=localStorage.getItem('adminStatus');
     let badgesCnt=0;
     let searchedUser=localStorage.getItem('searchUserName');
@@ -37,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
         pinnedAnswers=Array.isArray(data.pinnedAnswers) ? data.pinnedAnswers : (data.pinnedAnswers ? JSON.parse(data.pinnedAnswers) : []);
         updateUI();
         populateBadges(badgesCnt);
-        populateFriendsList(friendCnt);
+        populateFriendsList(friendCnt, friends);
         getTodaysAnswer(searchedUserId, false);
         if(adminStatus===true) addAdminMenu();
     })
@@ -57,6 +58,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('addFriend').addEventListener('click', function(){
         const signedIn=localStorage.getItem('signedInBoolean');
 
+        console.log(searchedUserId, "searched user id");
+
         if (signedIn==='false') {
             console.log('User is not signed in. Cannot add a friend.');
             return;
@@ -67,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
         addButton.classList.add('hide');
         removeButton.classList.add('show');
 
-        const url=`http://127.0.0.1:5000/users/${searchedUserId}`;
+        const url=`http://127.0.0.1:5000/users/${userID}`;
         const data={friendsList: [searchedUser]};
 
         fetch(url, {
@@ -80,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return response.json();
         })
         .then(data=>{
-            if(data.success) alert('booya :P')
+            if(data.message) alert('booya :P')
             else alert(data.error || 'This User Doesnt seem to exist? Thats weird :|');
         })
         .catch((error)=>{
@@ -92,10 +95,12 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('removeFriend').addEventListener('click', function(){
         const removeButton=document.getElementById('removeFriend');
         const addButton=document.getElementById('addFriend');
+        removeButton.classList.remove('show');
+        addButton.classList.remove('hide');
         removeButton.classList.add('hide');
         addButton.classList.add('show');
 
-        const url=`http://127.0.0.1:5000/users/${searchedUserId}/removeFriend`;
+        const url=`http://127.0.0.1:5000/users/${userID}/removeFriend`;
         const data={friend: searchedUser};
 
         fetch(url, {
@@ -118,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     //call with the second variable as a string
-    function updatePinned(pinnedString, pinNum){
+    /*function updatePinned(pinnedString, pinNum){
         if (pinnedString!=''){
             const pinnedNum=document.getElementById(`${pinNum}`);
             const string=document.createElement('span');
@@ -126,5 +131,5 @@ document.addEventListener('DOMContentLoaded', function() {
             pinnedNum.appendChild(string)
             pinnedNum.style.display=pinnedNum.style.display==='block'?'none':'block';
         }
-    };
+    };*/
 });

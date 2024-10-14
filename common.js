@@ -4,9 +4,6 @@ export function search(event){
     const user=document.getElementById('userSearch').value;
     const url='http://127.0.0.1:5000/users/search';
 
-    console.log(user.value);
-    console.log(typeof(user.value));
-
     fetch(url, {
         method: 'POST',
         headers: {
@@ -118,8 +115,7 @@ export function populateFriendsList(friendsCnt, friends){
         friend.addEventListener('click', function(event){
             event.preventDefault();
             const user=this.textContent;
-            const url=`http://127.0.0.1:5000/data/${user}`;
-            console.log(url);
+            const url='http://127.0.0.1:5000/users/search';
 
             fetch(url, {
                 method: 'POST',

@@ -474,7 +474,6 @@ def checkAdmin(userID):
     try:
         cursor.execute(query, (userID,))
         adminID=cursor.fetchone()
-        print("adminID", adminID)
         if adminID:
             return jsonify({"message": "admin found"}), 200
         else:
