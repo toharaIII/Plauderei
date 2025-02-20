@@ -5,7 +5,12 @@ document.addEventListener('DOMContentLoaded', function() {
     let searchedUserId=localStorage.getItem('searchUserID');
     //let searchedUserId=15; //for testing
     let userID=localStorage.getItem('userID');
-    let adminStatus=localStorage.getItem('adminStatus');
+    let adminStatusString=localStorage.getItem('adminStatus');
+    let adminStatus=true ? adminStatusString==="true" : false;
+    console.log("admin status",adminStatus);
+    console.log("admin local", typeof(adminStatus));
+    console.log("admin status taken from home", localStorage.getItem('adminStatus'));
+    console.log("admin stored", typeof(localStorage.getItem('adminStatus')))
     let badgesCnt=0;
     let searchedUser=localStorage.getItem('searchUserName');
     let name="";

@@ -1,4 +1,4 @@
-import { profileMenu, search, populatePage, populateBadges, populateFriendsList, getTodaysAnswer } from "../common.js";
+import { profileMenu, search, populatePage, populateBadges, populateFriendsList, getTodaysAnswer, addAdminMenu } from "../common.js";
 
 document.addEventListener('DOMContentLoaded', function() {
     let userAnswers=0;
@@ -6,7 +6,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let userID=localStorage.getItem('userID');
     //let userID=1; //for testing
-    let adminStatus=localStorage.getItem('adminStatus');
+    let adminStatusString=localStorage.getItem('adminStatus');
+    let adminStatus=true ? adminStatusString==="true" : false;
     let badgesCnt=0;
     let userName="";
     let name="";

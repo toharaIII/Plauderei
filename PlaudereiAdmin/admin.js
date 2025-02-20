@@ -164,10 +164,4 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('An error occured while trying to collect Queue. Please try again later.');
         });
     })
-
-    //not sure why this is here or if it was needed
-    /*document.getElementById('allSubmissionsButton').addEventListener('click', function(event){
-        let displayArea=document.getElementById('displayArea');
-        displayArea.innerHTML='';
-    })*/ 
 });

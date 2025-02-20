@@ -80,7 +80,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return checkAdmin(userId);
         })
         .then(adminStatus=> {
-            console.log(adminStatus);
             localStorage.setItem('adminStatus', adminStatus);
             if(adminStatus===true) addAdminMenu();
         })

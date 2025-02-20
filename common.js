@@ -347,6 +347,7 @@ export function getTodaysAnswer(userID, myProfile){
 }
 
 export function addAdminMenu(){
+    console.log("running addAdminMenu function");
     let menu=document.getElementById('menu');
     let adminMenu=document.createElement('div');
     adminMenu.classList='adminMenu';
