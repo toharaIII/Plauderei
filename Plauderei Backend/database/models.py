@@ -1,0 +1,48 @@
+from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime, func
+from sqlalchemy.dialects.mysql import json
+from sqlalchemy.orm import relationship
+from .database import base
+
+class user(base):
+    __tablename__="users"
+
+    user_uuid=Column(String(36), primary_key=True, unique=True, nullable=False)
+    email=Column(String(255), unique=True, nullable=False)
+    password=Column(String(255), nullable=False)
+    username=Column(String(100), nullable=False)
+    bio=Column(Text)
+    stickerCount=Column(Integer, default=0)
+    friendsList=Column(json)
+    curAnswer=Column(Text, nullable=True)
+    answerCount=Column(Integer, default=1)
+    replyCount=Column(Integer, default=3)
+    pinnedAnswer=Column(json)
+
+    comments=relationship("Comment", back_populates="users")
+    submitted_questions=relationship("submittedQuestion", back_populates="user")
+
+class comment(base):
+    __tablename__="comments"
+
+    commentId=Column(Integer, primary_key=True, autoincrement=True)
+    content=Column(Text, nullable=False)
+    user_uuid=Column(String(36), ForeignKey("users.user_uuid"), nullable=False)
+    parent_id=Column(Integer, ForeignKey("comments.comment_id"), nullable=True)
+    timestamp=Column(DateTime, server_default=func.now())
+
+class dailyQuestionQueue(base):
+    __tablename__="daily_questions_queue"
+
+    question_id=Column(Integer, primary_key=True, autoincrement=True)
+    question=Column(Text, nullable=False)
+    position=Column(Integer, nullable=True)
+
+class submittedQuestion(base):
+    __tablename__="submitted_questions"
+
+    question_id=Column(Integer, primary_key=True, autoincrement=True)
+    question=Column(Text, nullable=False)
+    user_uuid=Column(String(36), ForeignKey("users.user_uuid"), nullable=False)
+    time_submitted=Column(DateTime, server_default=func.now())
+
+    user=relationship("User", back_populates="submitted_questions")

@@ -1,0 +1,2 @@
+plauderei Backend folder dependencies:
+FastAPI, SQLAlchemy, pymysql
