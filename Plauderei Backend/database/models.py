@@ -35,7 +35,7 @@ class dailyQuestionQueue(base):
 
     question_id=Column(Integer, primary_key=True, autoincrement=True)
     question=Column(Text, nullable=False)
-    position=Column(Integer, nullable=True)
+    position=Column(Integer, nullable=False, unique=True)
 
 class submittedQuestion(base):
     __tablename__="submitted_questions"

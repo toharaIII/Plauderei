@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from pydantic import BaseModel
 from typing import List
 from database.database import getDB
@@ -9,13 +10,19 @@ class QuestionCreate(BaseModel):
     question: str
     position: int
 
+class QuestionResponse(QuestionCreate):
+    question_id: int
+
+    class Config:
+        orm_mode = True
+
 router=APIRouter()
 
 @router.get("/questions/", response_model=List[QuestionCreate])
 def get_all_questions(db: Session=Depends(getDB)):
     return db.query(dailyQuestionQueue).all()
 
-@router.post("/questions/")
+@router.post("/questions/", response_model=QuestionResponse)
 def add_question(data: QuestionCreate, db:Session=Depends(getDB)):
     print(f"Received data: {data}")
     try:
@@ -24,12 +31,15 @@ def add_question(data: QuestionCreate, db:Session=Depends(getDB)):
         db.commit()
         db.refresh(new_question)
         return new_question
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Position already exists")
     except Exception as e:
         print(f"Error: {e}")
         db.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.delete("/questions/")
+@router.delete("/questions/{question_id}")
 def delete_question(question_id: int, db: Session=Depends(getDB)):
     question=db.query(dailyQuestionQueue).filter(dailyQuestionQueue.question_id==question_id).first()
     if not question:
