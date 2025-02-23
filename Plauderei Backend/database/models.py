@@ -30,6 +30,8 @@ class Comment(base):
     parent_id=Column(Integer, ForeignKey("comments.commentId"), nullable=True)
     timestamp=Column(DateTime, server_default=func.now())
 
+    users=relationship("User", back_populates="comments")
+
 class dailyQuestionQueue(base):
     __tablename__="daily_questions_queue"
 
