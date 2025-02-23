@@ -27,11 +27,11 @@ class Comment(base):
     commentId=Column(Integer, primary_key=True, autoincrement=True)
     content=Column(Text, nullable=False)
     user_uuid=Column(String(36), ForeignKey("users.user_uuid"), nullable=False)
-    parent_id=Column(Integer, ForeignKey("comments.id"), nullable=True)
+    parent_id=Column(Integer, ForeignKey("comments.commentId"), nullable=True)
     timestamp=Column(DateTime, server_default=func.now(), nullable=True)
 
     users=relationship("User", back_populates="comments")
-    replies=relationship("Comment", backref=backref("parent", remote_side=[id]), cascade="all, delete")
+    replies=relationship("Comment", backref=backref("parent", remote_side=[commentId]), cascade="all, delete")
 
 class dailyQuestionQueue(base):
     __tablename__="daily_questions_queue"
