@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Text, DateTime, func
 from sqlalchemy.dialects.mysql import JSON
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from .database import base
 
 class User(base):
@@ -8,8 +8,8 @@ class User(base):
 
     user_uuid=Column(String(36), primary_key=True, unique=True, nullable=False)
     email=Column(String(255), unique=True, nullable=False)
-    password=Column(String(255), nullable=False)
-    username=Column(String(100), nullable=False)
+    password=Column(String(255), unique=True, nullable=False)
+    username=Column(String(50), nullable=False)
     bio=Column(Text)
     stickerCount=Column(Integer, default=0)
     friendsList=Column(JSON)
@@ -27,10 +27,11 @@ class Comment(base):
     commentId=Column(Integer, primary_key=True, autoincrement=True)
     content=Column(Text, nullable=False)
     user_uuid=Column(String(36), ForeignKey("users.user_uuid"), nullable=False)
-    parent_id=Column(Integer, ForeignKey("comments.commentId"), nullable=True)
-    timestamp=Column(DateTime, server_default=func.now())
+    parent_id=Column(Integer, ForeignKey("comments.id"), nullable=True)
+    timestamp=Column(DateTime, server_default=func.now(), nullable=True)
 
     users=relationship("User", back_populates="comments")
+    replies=relationship("Comment", backref=backref("parent", remote_side=[id]), cascade="all, delete")
 
 class dailyQuestionQueue(base):
     __tablename__="daily_questions_queue"
@@ -45,6 +46,6 @@ class submittedQuestion(base):
     question_id=Column(Integer, primary_key=True, autoincrement=True)
     question=Column(Text, nullable=False)
     user_uuid=Column(String(36), ForeignKey("users.user_uuid"), nullable=False)
-    time_submitted=Column(DateTime, server_default=func.now())
+    time_submitted=Column(DateTime, server_default=func.now(), nullable=True)
 
     user=relationship("User", back_populates="submitted_questions")
