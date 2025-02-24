@@ -44,7 +44,7 @@ def get_questions_by_user(user_uuid: str, db:Session=Depends(getDB)):
         raise HTTPException(status_code=404, detail="No questions found for this user")
     return questions
 
-@router.get("/submitted/{start_time}", response_model=List[SubmittedQuestionResponse])
+@router.get("/submitted/time/{start_time}", response_model=List[SubmittedQuestionResponse])
 def get_questions_from_time(start_time: datetime, db:Session=Depends(getDB)):
     questions=db.query(submittedQuestion).filter(submittedQuestion.time_submitted>=start_time).all()
     if not questions:
