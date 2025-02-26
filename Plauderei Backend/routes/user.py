@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from pydantic import BaseModel, EmailStr
 from typing import Optional, Dict
 import uuid
-import json
+import bcrypt
 from database.database import getDB
 from database.models import User
 
@@ -11,6 +12,10 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
     username: str
+
+class UserLogin(BaseModel):
+    identifier: str
+    password: str
 
 class UserUpdate(BaseModel):
     bio: Optional[str]=None
@@ -46,14 +51,16 @@ router=APIRouter()
 
 @router.post("/user/", response_model=UserResponse)
 def create_user(user: UserCreate, db: Session=Depends(getDB)):
-    existing_user = db.query(User).filter(User.email==user.email).first()
+    existing_user=db.query(User).filter(User.email==user.email).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
+
+    hashed_password=bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
     new_user = User(
         user_uuid=str(uuid.uuid4()),
         email=user.email,
-        password=user.password,  #Hash this in production!!!!!!!!!!
+        password=hashed_password,
         username=user.username,
         bio=None,
         sticker_count=0,
@@ -67,6 +74,20 @@ def create_user(user: UserCreate, db: Session=Depends(getDB)):
     db.commit()
     db.refresh(new_user)
     return new_user
+
+@router.post("/user/login/", response_model=UserResponse)
+def login_user(user: UserLogin, db: Session=Depends(getDB)):
+    existing_user = db.query(User).filter(
+        or_(User.email==user.identifier, User.username==user.identifier)
+    ).first()
+
+    if not existing_user:
+        raise HTTPException(status_code=401, detail="Invalid email/username or password")
+    
+    if not bcrypt.checkpw(user.password.encode('utf-8'), existing_user.password.encode('utf-8')):
+        raise HTTPException(status_code=401, detail="Invalid email/username or password")
+
+    return existing_user  # FastAPI will convert this to UserResponse
 
 @router.delete("/user/{user_uuid}")
 def delete_user(user_uuid: str, db: Session=Depends(getDB)):

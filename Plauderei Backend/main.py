@@ -16,3 +16,9 @@ app.include_router(submittedQuestions.router)
 def root():
     print("FastAPI is running and receiving requests.")
     return {"message": "Hello from FastAPI!"}
+
+@app.on_event("startup")
+async def startup_event():
+    print("Registered routes:")
+    for route in app.routes:
+        print(f"{route.methods} {route.path}")
