@@ -1,10 +1,10 @@
 import logo from './logo.svg';
 import './App.css';
-import react, {useContext} from 'react';
-import {userContext} from "./context/UserContext";
+import React from 'react';
+import {useUser} from "./context/UserContext";
 
 function App() {
-  const{user, login, logout}=userContext(userContext);
+  const{user, login, logout}=useUser();
 
   return (
     <div className="App">
