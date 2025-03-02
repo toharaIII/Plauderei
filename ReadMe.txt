@@ -1,72 +1,4 @@
-schedule:
-    feb 20: database
-    feb 21: api
-    feb 22: api testing on postman + debug
-    feb 23: Backend + unit testing + debug
-    feb 24: FrontEnd main page, both
-    feb 25: frontend my profile + other profile
-    feb 26: froentend admin page + make unit testing
-    feb 27: debug if necessary
-    feb 28: integration testing
 
-DataBase:
-MySQL:
-user: email (unique), password, UUID, username, friendslist map<username, UUID>, 
-    submission 
-
-
-CREATE TABLE comments (
-    id SERIAL PRIMARY KEY,
-    post_id INT NOT NULL, -- Links the comment to a post/video
-    user_id INT NOT NULL, -- Links to the user who made the comment
-    parent_id INT NULL, -- References another comment (NULL if it's a top-level comment)
-    content TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (parent_id) REFERENCES comments(id) ON DELETE CASCADE,
-    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
-DailyQuestion Queue:
-    string for question, questionId, position?
-
-submittedQuestions
-    string for question, questionId, UUID (for user), timeSubmitted
-
-
-Backend:
-user object{
-    email
-    password
-    UUID
-    username
-    bio
-    friendslist map<username, UUID>
-    pinnedAnswers map<questionId,
-    numAnswers
-    curSubmissionID? look into below chatgpt thread
-}
-
-not sure how to handle comments, look at chatgpt thread called: nested comments implimentation
-
-Middeware:
-create user
-
-Get userObeject from email
-Get userObject from UUID
-Get dailyQuestion
-Get comment + thread
-Get allDailyQuestionQueue
-Get allSubmittedQuestionsTime
-
-Send newUsername
-Send newFriendsList
-Send pinnedAnswers
-Send numAnswers
-Send curSubmission
-Send submittedQuestions
-Send pinnedAnswers
-Send newReply
 
 FrontEnd:
 Not SignedIn main:
@@ -114,3 +46,6 @@ admin page
     submitted questions with criteria like time submitted, etc?
     add to bottom of queue from submittedQuestions
     remove from queue
+
+need to add:
+to user: admin status, admin id, banned account, banned until date
