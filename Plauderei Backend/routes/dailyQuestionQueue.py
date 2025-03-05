@@ -22,6 +22,16 @@ router=APIRouter()
 def get_all_questions(db: Session=Depends(getDB)):
     return db.query(dailyQuestionQueue).all()
 
+@router.get("/questions/lowest/", response_model=QuestionResponse)
+def get_question_with_lowest_position(db: Session=Depends(getDB)):
+    lowest_position_question=(
+        db.query(dailyQuestionQueue).order_by(dailyQuestionQueue.position).first())
+
+    if lowest_position_question is None:
+        raise HTTPException(status_code=404, detail="No questions found")
+    
+    return lowest_position_question
+
 @router.post("/questions/", response_model=QuestionResponse)
 def add_question(data: QuestionCreate, db:Session=Depends(getDB)):
     print(f"Received data: {data}")
