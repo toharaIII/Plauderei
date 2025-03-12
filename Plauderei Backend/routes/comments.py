@@ -56,7 +56,7 @@ def get_user_replies(user_uuid: str, db: Session = Depends(getDB)):
     replies = db.query(Comment).filter(Comment.user_uuid == user_uuid, Comment.parent_id != None).all()
     return replies
 
-@router.get("/comments/random/", response_class=List[CommentResponse])
+@router.get("/comments/random/", response_model=List[CommentResponse])
 def get_random_comments(db:Session=Depends(getDB)):
     total_comments=db.query(Comment).filter(Comment.parent_id==None).count()
     if total_comments<5:
